@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 1: Setting Up C</title>
+<style>
+  :root {
+    --bg1: #eef2ff; --bg2: #f8fafc; --card: #ffffff;
+    --card-border: rgba(15,23,42,0.06); --ink: #1e293b; --muted: #64748b;
+    --accent: #6366f1; --accent-ink: #ffffff;
+    --tip-bg: #fef9c3; --tip-border: #eab308; --tip-ink: #713f12;
+    --warn-bg: #fee2e2; --warn-border: #ef4444; --warn-ink: #7f1d1d;
+    --recap-bg: #ecfdf5; --recap-border: #10b981;
+    --shadow: rgba(15,23,42,0.15); --btn-secondary-bg: #e2e8f0; --btn-secondary-ink: #1e293b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg1: #1e1b4b; --bg2: #0f172a; --card: #1a2036;
+      --card-border: rgba(255,255,255,0.08); --ink: #e7ecff; --muted: #94a3b8;
+      --accent: #818cf8; --accent-ink: #0f172a;
+      --tip-bg: #3f3311; --tip-border: #eab308; --tip-ink: #fef08a;
+      --warn-bg: #3b1212; --warn-border: #f87171; --warn-ink: #fecaca;
+      --recap-bg: #082f22; --recap-border: #34d399;
+      --shadow: rgba(0,0,0,0.5); --btn-secondary-bg: #2a3252; --btn-secondary-ink: #e7ecff;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg1: #1e1b4b; --bg2: #0f172a; --card: #1a2036;
+    --card-border: rgba(255,255,255,0.08); --ink: #e7ecff; --muted: #94a3b8;
+    --accent: #818cf8; --accent-ink: #0f172a;
+    --tip-bg: #3f3311; --tip-border: #eab308; --tip-ink: #fef08a;
+    --warn-bg: #3b1212; --warn-border: #f87171; --warn-ink: #fecaca;
+    --recap-bg: #082f22; --recap-border: #34d399;
+    --shadow: rgba(0,0,0,0.5); --btn-secondary-bg: #2a3252; --btn-secondary-ink: #e7ecff;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { height: 100%; }
+  body { margin: 0; overscroll-behavior: none; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(180deg, var(--bg1), var(--bg2));
+    min-height: 100dvh; display: flex; justify-content: center;
+    padding: 16px; color: var(--ink); transition: background 0.2s, color 0.2s;
+  }
+  .theme-toggle {
+    position: fixed; top: 14px; right: 14px; width: 42px; height: 42px;
+    border-radius: 50%; background: var(--card); border: 1px solid var(--card-border);
+    box-shadow: 0 4px 14px var(--shadow); font-size: 19px; display: flex;
+    align-items: center; justify-content: center; cursor: pointer; z-index: 20; padding: 0;
+  }
+  .theme-toggle:active { transform: scale(0.92); }
+  .wrap { width: 100%; max-width: 760px; padding-top: 8px; }
+  .card { background: var(--card); border: 1px solid var(--card-border); border-radius: 20px; padding: 26px 24px; box-shadow: 0 20px 60px var(--shadow); }
+  .lesson-nav-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 13.5px; padding-right: 48px; }
+  .lesson-nav-top a { color: var(--accent); text-decoration: none; font-weight: 600; }
+  .lesson-badge { background: var(--bg1); color: var(--accent); font-weight: 700; font-size: 11.5px; padding: 4px 10px; border-radius: 999px; }
+  h1 { font-size: clamp(22px, 5vw, 28px); margin: 0 0 4px; }
+  .subtitle { color: var(--muted); font-size: 14.5px; margin-bottom: 18px; line-height: 1.5; }
+  h2.section-title { font-size: 18px; margin: 32px 0 10px; padding-top: 18px; border-top: 1px solid var(--card-border); }
+  h3 { font-size: 15.5px; margin: 20px 0 6px; }
+  p { line-height: 1.65; font-size: 15px; }
+  a { color: var(--accent); }
+  .steps { padding-left: 22px; margin: 10px 0; }
+  .steps li { line-height: 1.65; font-size: 15px; margin-bottom: 8px; }
+  .tip, .warn { border-left: 4px solid; border-radius: 8px; padding: 12px 14px; font-size: 14px; line-height: 1.55; margin: 16px 0; }
+  .tip { background: var(--tip-bg); border-color: var(--tip-border); color: var(--tip-ink); }
+  .warn { background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn-ink); }
+  .tip b.t, .warn b.t { display: block; margin-bottom: 3px; }
+  .recap { background: var(--recap-bg); border: 1px solid var(--recap-border); border-radius: 14px; padding: 16px 18px; margin-top: 30px; }
+  .recap h2 { margin: 0 0 10px; font-size: 16px; }
+  .recap ul { margin: 0; padding-left: 20px; font-size: 14.5px; line-height: 1.75; }
+  .lesson-nav-bottom { display: flex; gap: 10px; margin-top: 24px; }
+  .nav-btn { flex: 1; text-align: center; padding: 13px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 14.5px; background: var(--btn-secondary-bg); color: var(--btn-secondary-ink); }
+  .nav-btn.primary { background: var(--accent); color: var(--accent-ink); }
+  .toc { background: var(--bg1); border-radius: 12px; padding: 12px 16px; font-size: 14px; }
+  .toc ol { margin: 6px 0 0; padding-left: 20px; line-height: 1.8; }
+  .toc a { text-decoration: none; font-weight: 600; }
+  code, .kbd { font-family: Consolas, "Cascadia Mono", Menlo, monospace; }
+  code { background: var(--bg1); padding: 1px 6px; border-radius: 5px; font-size: 13.5px; word-break: break-word; }
+  .kbd { display: inline-block; padding: 1px 7px; border-radius: 5px; border: 1px solid var(--card-border); border-bottom-width: 3px; background: var(--bg1); font-weight: 700; font-size: 12.5px; color: var(--ink); white-space: nowrap; }
+
+  /* flow diagram */
+  .flow { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 16px 0; }
+  .flow .box { background: var(--bg1); border-radius: 12px; padding: 12px 14px; text-align: center; min-width: 120px; font-size: 13px; color: var(--muted); }
+  .flow .box b { display: block; color: var(--ink); font-size: 15px; font-family: Consolas, Menlo, monospace; margin-bottom: 2px; }
+  .flow .arrow { color: var(--accent); font-weight: 800; font-size: 20px; }
+
+  /* code + terminal blocks */
+  .codeblock { position: relative; margin: 12px 0; border-radius: 10px; overflow: hidden; box-shadow: 0 8px 22px var(--shadow); }
+  .codeblock .bar { background: #1f1f1f; color: #aaa; font: 12px "Segoe UI", sans-serif; padding: 7px 12px; display: flex; justify-content: space-between; align-items: center; }
+  .codeblock pre { margin: 0; background: #0c0c0c; color: #d4d4d4; padding: 12px 14px; font: 13.5px/1.6 Consolas, "Cascadia Mono", Menlo, monospace; overflow-x: auto; }
+  .copy-btn { background: #333; color: #ddd; border: 0; border-radius: 6px; font-size: 11.5px; padding: 3px 9px; cursor: pointer; }
+  .copy-btn:active { transform: scale(0.95); }
+  .c-kw { color: #c586c0; } .c-str { color: #ce9178; } .c-pp { color: #9cdcfe; } .c-com { color: #6a9955; } .c-fn { color: #dcdcaa; }
+  .t-out { color: #7ee787; } .t-err { color: #ff7b72; }
+
+  /* windows dialog mockups */
+  .dlg { border-radius: 8px; overflow: hidden; border: 1px solid rgba(0,0,0,0.15); box-shadow: 0 10px 30px var(--shadow); margin: 14px 0; background: #fff; color: #222; max-width: 440px; font: 12.5px "Segoe UI", sans-serif; }
+  .dlg-title { background: #f3f3f3; padding: 8px 12px; border-bottom: 1px solid #ddd; font-weight: 600; display: flex; justify-content: space-between; }
+  .dlg-body { padding: 12px; }
+  .dlg-label { font-weight: 600; margin: 6px 0 4px; }
+  .dlg-list { border: 1px solid #bbb; background: #fff; }
+  .dlg-list div { padding: 4px 8px; display: flex; gap: 14px; font-family: Consolas, monospace; font-size: 12px; }
+  .dlg-list div span:first-child { min-width: 80px; font-family: "Segoe UI", sans-serif; }
+  .dlg-list div.hl { background: #cce4f7; outline: 1px solid #0078d4; }
+  .dlg-list div.new { background: #e8f5e9; font-weight: 700; }
+  .dlg-btns { display: flex; gap: 6px; justify-content: flex-end; margin-top: 10px; flex-wrap: wrap; }
+  .dlg-btn { padding: 4px 14px; border: 1px solid #adadad; background: #e1e1e1; border-radius: 3px; }
+  .dlg-btn.hl { border-color: #0078d4; background: #cce4f7; box-shadow: 0 0 0 2px rgba(0,120,212,0.3); }
+  .dlg-side { display: flex; gap: 10px; }
+  .dlg-side .dlg-list { flex: 1; }
+  .dlg-side .col { display: flex; flex-direction: column; gap: 5px; }
+  .caption { font-size: 12.5px; color: var(--muted); text-align: center; margin-top: -4px; margin-bottom: 14px; }
+
+  .folder-tree { font: 13.5px/1.7 Consolas, Menlo, monospace; background: var(--bg1); border-radius: 10px; padding: 12px 16px; white-space: pre; overflow-x: auto; }
+  .folder-tree b { color: var(--accent); }
+
+  .editor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin: 12px 0; }
+  .editor-grid > div { background: var(--bg1); border-radius: 12px; padding: 12px 14px; font-size: 13.5px; line-height: 1.5; }
+  .editor-grid b { display: block; font-size: 14.5px; margin-bottom: 3px; }
+  .checklist { list-style: none; padding: 0; margin: 10px 0; }
+  .checklist li { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border-radius: 10px; font-size: 14.5px; line-height: 1.5; cursor: pointer; }
+  .checklist li:hover { background: var(--bg1); }
+  .checklist input { margin-top: 4px; width: 17px; height: 17px; accent-color: var(--accent); flex-shrink: 0; }
+
+  @media (max-width: 420px) { .card { padding: 18px 14px; } .dlg-side { flex-direction: column; } .dlg-side .col { flex-direction: row; flex-wrap: wrap; } }
+</style>
+</head>
+<body>
+<button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark mode">🌙</button>
+<div class="wrap">
+  <div class="card">
+    <div class="lesson-nav-top">
+      <a href="index.html">← All Lessons</a>
+      <span class="lesson-badge">Lesson 1</span>
+    </div>
+
+    <h1>🛠️ Setting Up C on Your Computer</h1>
+    <div class="subtitle">Before we can write programs in C, we need two tools: a <b>compiler</b> and a <b>text editor</b>. This lesson installs both on a Windows computer.</div>
+
+    <div class="toc">
+      <b>In this lesson</b>
+      <ol>
+        <li><a href="#what">What do we need?</a></li>
+        <li><a href="#mingw">Install the GCC compiler (MinGW-w64)</a></li>
+        <li><a href="#path">Add GCC to PATH</a></li>
+        <li><a href="#check">Check that it works</a></li>
+        <li><a href="#sublime">Install Sublime Text</a></li>
+        <li><a href="#first">Save your first C file</a></li>
+      </ol>
+    </div>
+
+    <!-- 1 -->
+    <h2 class="section-title" id="what">1. What do we need?</h2>
+    <p>Computers don't understand C directly. They only run <b>machine code</b>. A <b>compiler</b> is a program that translates your C code into a program the computer can run (an <code>.exe</code> file on Windows).</p>
+    <div class="flow">
+      <div class="box"><b>hello.c</b>Your C code<br>(you type this)</div>
+      <div class="arrow">→</div>
+      <div class="box"><b>gcc</b>The compiler<br>(translates it)</div>
+      <div class="arrow">→</div>
+      <div class="box"><b>hello.exe</b>A program<br>you can run</div>
+    </div>
+    <p>We'll use <b>GCC</b> (the GNU C Compiler). On Windows, GCC comes in a package called <b>MinGW-w64</b> ("Minimalist GNU for Windows"). For typing our code we'll use <b>Sublime Text</b>, a fast and clean text editor.</p>
+
+    <!-- 2 -->
+    <h2 class="section-title" id="mingw">2. Install the GCC compiler (MinGW-w64)</h2>
+    <p>We'll use the <b>WinLibs</b> build of MinGW-w64. There's no installer, just a zip file you extract. That makes it easy to set up on school computers.</p>
+    <ol class="steps">
+      <li>Open your browser and go to <a href="https://winlibs.com/" target="_blank" rel="noopener">winlibs.com</a>.</li>
+      <li>Scroll down to <b>Download</b> → <b>Release versions</b> → <b>UCRT runtime</b>.</li>
+      <li>Under the <b>newest GCC version</b> (the first one in the list), find <b>Win64</b> and click <b>Zip archive</b>. Choose the one <b>without LLVM/Clang/LLD/LLDB</b>, because it's a smaller download.</li>
+      <li>When the download finishes, open your <b>Downloads</b> folder. <b>Right-click</b> the zip file → <b>Extract All…</b></li>
+      <li>In the box that asks where to extract, type <code>C:\</code> and click <b>Extract</b>. (This may take a minute.)</li>
+      <li>Open <b>This PC → Local Disk (C:)</b>. You should now see a folder named <b>mingw64</b>.</li>
+    </ol>
+    <p>Your folders should look like this:</p>
+    <div class="folder-tree">C:\
+└── <b>mingw64</b>
+    ├── <b>bin</b>          ← gcc.exe lives here!
+    │   ├── gcc.exe
+    │   ├── g++.exe
+    │   └── ...
+    ├── include
+    └── lib</div>
+    <div class="warn">
+      <b class="t">⚠️ Check the folder!</b>
+      Make sure the file is at exactly <code>C:\mingw64\bin\gcc.exe</code>. Sometimes Windows makes an extra folder, like <code>C:\winlibs-x86_64...\mingw64</code>. If that happens, move the <b>mingw64</b> folder so it sits directly inside <code>C:\</code>.
+    </div>
+    <div class="tip">
+      <b class="t">💡 Other ways to get MinGW</b>
+      You may also see <b>MSYS2</b> or the old <b>MinGW Installation Manager</b> (mingw-get) online. They work too, but your gcc folder will be somewhere else, for example <code>C:\msys64\ucrt64\bin</code> or <code>C:\MinGW\bin</code>. Whatever folder holds <b>gcc.exe</b> is the one you add to PATH in the next step.
+    </div>
+
+    <!-- 3 -->
+    <h2 class="section-title" id="path">3. Add GCC to PATH</h2>
+    <p>Right now, gcc is on your computer, but the Command Prompt doesn't know <i>where</i> it is. <b>PATH</b> is a list of folders Windows searches when you type a command. We'll add <code>C:\mingw64\bin</code> to that list.</p>
+    <ol class="steps">
+      <li>Click <b>Start</b> (or press the <span class="kbd">⊞ Win</span> key) and type <b>environment variables</b>.</li>
+      <li>Click <b>Edit the system environment variables</b>. A <b>System Properties</b> window opens.</li>
+      <li>At the bottom, click the <b>Environment Variables…</b> button.</li>
+      <li>In the <b>top</b> box (<b>User variables</b>), click <b>Path</b> once to select it, then click <b>Edit…</b></li>
+      <li>Click <b>New</b> and type: <code>C:\mingw64\bin</code></li>
+      <li>Click <b>OK</b> → <b>OK</b> → <b>OK</b> to close all three windows.</li>
+    </ol>
+
+    <div class="dlg">
+      <div class="dlg-title"><span>Environment Variables</span><span>✕</span></div>
+      <div class="dlg-body">
+        <div class="dlg-label">User variables for Student</div>
+        <div class="dlg-list">
+          <div><span>OneDrive</span><span>C:\Users\Student\OneDrive</span></div>
+          <div class="hl"><span>Path</span><span>C:\Users\Student\AppData\...</span></div>
+          <div><span>TEMP</span><span>C:\Users\Student\AppData\Local\Temp</span></div>
+        </div>
+        <div class="dlg-btns"><span class="dlg-btn">New…</span><span class="dlg-btn hl">Edit…</span><span class="dlg-btn">Delete</span></div>
+      </div>
+    </div>
+    <div class="caption">Step 4: select <b>Path</b> under <b>User variables</b>, then click <b>Edit…</b></div>
+
+    <div class="dlg">
+      <div class="dlg-title"><span>Edit environment variable</span><span>✕</span></div>
+      <div class="dlg-body">
+        <div class="dlg-side">
+          <div class="dlg-list">
+            <div><span>%USERPROFILE%\AppData\Local\Microsoft\WindowsApps</span></div>
+            <div class="new"><span>C:\mingw64\bin</span></div>
+          </div>
+          <div class="col"><span class="dlg-btn hl">New</span><span class="dlg-btn">Edit</span><span class="dlg-btn">Browse…</span><span class="dlg-btn">Delete</span></div>
+        </div>
+        <div class="dlg-btns"><span class="dlg-btn hl">OK</span><span class="dlg-btn">Cancel</span></div>
+      </div>
+    </div>
+    <div class="caption">Step 5: click <b>New</b>, type <code>C:\mingw64\bin</code>, then <b>OK</b></div>
+
+    <div class="tip">
+      <b class="t">💡 User or System variables?</b>
+      <b>User variables</b> only work for the person who is logged in, but you don't need an administrator password. On a shared school computer, the teacher can add it under <b>System variables → Path</b> instead, so it works for every account.
+    </div>
+    <div class="warn">
+      <b class="t">⚠️ Don't delete anything!</b>
+      Only <b>add</b> a new line. Never delete or change the lines that are already in Path, because other programs need them.
+    </div>
+
+    <!-- 4 -->
+    <h2 class="section-title" id="check">4. Check that it works</h2>
+    <p>Open a <b>new</b> Command Prompt. Press <span class="kbd">⊞ Win</span> + <span class="kbd">R</span>, type <code>cmd</code>, and press <span class="kbd">Enter</span>. Then type this command and press <span class="kbd">Enter</span>:</p>
+    <div class="codeblock">
+      <div class="bar"><span>Command Prompt</span><button class="copy-btn" data-copy="gcc --version">Copy</button></div>
+      <pre>C:\Users\Student&gt; gcc --version
+<span class="t-out">gcc (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders) 15.2.0
+Copyright (C) 2025 Free Software Foundation, Inc.</span></pre>
+    </div>
+    <p>🎉 If you see a version number like the one above, GCC is installed! (Your numbers may be different, and that's fine.)</p>
+
+    <h3>What if it doesn't work?</h3>
+    <div class="codeblock">
+      <div class="bar"><span>Command Prompt</span></div>
+      <pre>C:\Users\Student&gt; gcc --version
+<span class="t-err">'gcc' is not recognized as an internal or external command,
+operable program or batch file.</span></pre>
+    </div>
+    <p>This means Windows can't find gcc. Check these one by one:</p>
+    <ol class="steps">
+      <li><b>Close the Command Prompt and open a new one.</b> A window that was already open before you changed PATH won't see the change.</li>
+      <li>Check that <code>C:\mingw64\bin\gcc.exe</code> really exists (see the warning in Step 2).</li>
+      <li>Go back to the PATH window and check the spelling: <code>C:\mingw64\bin</code>, with no extra spaces and <b>bin</b> at the end.</li>
+      <li>Still stuck? Restart the computer and try again.</li>
+    </ol>
+
+    <!-- 5 -->
+    <h2 class="section-title" id="sublime">5. Install Sublime Text</h2>
+    <ol class="steps">
+      <li>Go to <a href="https://www.sublimetext.com/" target="_blank" rel="noopener">sublimetext.com</a> and click <b>Download for Windows</b>.</li>
+      <li>Open the downloaded setup file and click <b>Next → Next → Install → Finish</b>.</li>
+      <li>Open <b>Sublime Text</b> from the Start menu.</li>
+    </ol>
+    <div class="tip">
+      <b class="t">💡 About the pop-up</b>
+      Sublime Text is free to use. Once in a while it shows a small window asking you to buy a license. Just close it and keep working.
+    </div>
+    <h3>Can I use a different editor?</h3>
+    <p>Yes! Any editor that saves plain text works. Here are a few options:</p>
+    <div class="editor-grid">
+      <div><b>Sublime Text ⭐</b>Fast, colorful, simple. Our class choice.</div>
+      <div><b>Notepad++</b>Light and free. Good for older computers.</div>
+      <div><b>VS Code</b>Free and powerful, but it has more buttons to learn.</div>
+      <div><b>Notepad</b>Already on Windows. When saving, set <i>Save as type</i> to <b>All files</b> so you get <code>hello.c</code>, not <code>hello.c.txt</code>.</div>
+    </div>
+
+    <!-- 6 -->
+    <h2 class="section-title" id="first">6. Save your first C file</h2>
+    <ol class="steps">
+      <li>Make a folder for your programs: open <b>This PC → Local Disk (C:)</b>, right-click → <b>New → Folder</b>, and name it <code>cprog</code>.</li>
+      <li>In Sublime Text, click <b>File → New File</b> and type this program exactly:</li>
+    </ol>
+    <div class="codeblock">
+      <div class="bar"><span>hello.c</span><button class="copy-btn" data-copy-target="helloCode">Copy</button></div>
+      <pre id="helloCode"><span class="c-pp">#include</span> <span class="c-str">&lt;stdio.h&gt;</span>
+
+<span class="c-kw">int</span> <span class="c-fn">main</span>() {
+    <span class="c-fn">printf</span>(<span class="c-str">"Hello, World!\n"</span>);
+    <span class="c-kw">return</span> 0;
+}</pre>
+    </div>
+    <ol class="steps" start="3">
+      <li>Press <span class="kbd">Ctrl</span> + <span class="kbd">S</span>, go to <code>C:\cprog</code>, and save it as <code>hello.c</code>.</li>
+      <li>Once it's saved as <b>.c</b>, the words change color. That's Sublime recognizing it as C code! 🌈</li>
+    </ol>
+    <div class="tip">
+      <b class="t">💡 Why C:\cprog?</b>
+      A short folder name with <b>no spaces</b> is much easier to reach from the Command Prompt. You'll see why in Lesson 2!
+    </div>
+    <p>In <b>Lesson 2</b>, we'll learn how to use the Command Prompt to go to this folder, <b>compile</b> hello.c with gcc, and <b>run</b> it.</p>
+
+    <h3>⭐ Bonus: Build and run inside Sublime Text</h3>
+    <p>Once you know the Command Prompt, you can let Sublime run gcc for you:</p>
+    <ol class="steps">
+      <li>In Sublime, click <b>Tools → Build System → New Build System…</b></li>
+      <li>Delete everything in the new tab and paste this:</li>
+    </ol>
+    <div class="codeblock">
+      <div class="bar"><span>C.sublime-build</span><button class="copy-btn" data-copy-target="buildCode">Copy</button></div>
+      <pre id="buildCode">{
+    "shell_cmd": "gcc \"${file}\" -o \"${file_base_name}\"",
+    "working_dir": "${file_path}",
+    "selector": "source.c",
+    "file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$",
+    "variants": [
+        {
+            "name": "Run",
+            "shell_cmd": "gcc \"${file}\" -o \"${file_base_name}\" &amp;&amp; start cmd /k \"${file_base_name}\""
+        }
+    ]
+}</pre>
+    </div>
+    <ol class="steps" start="3">
+      <li>Press <span class="kbd">Ctrl</span> + <span class="kbd">S</span> and save it as <code>C.sublime-build</code> (keep the folder Sublime suggests).</li>
+      <li>Choose <b>Tools → Build System → C</b>.</li>
+      <li>Open hello.c and press <span class="kbd">Ctrl</span> + <span class="kbd">Shift</span> + <span class="kbd">B</span>, then pick <b>C - Run</b>. A Command Prompt window opens and shows your program's output!</li>
+    </ol>
+
+    <div class="recap">
+      <h2>✅ Checklist: Am I ready for Lesson 2?</h2>
+      <ul class="checklist" id="checklist">
+        <li><input type="checkbox" id="c1"><label for="c1">I have the folder <code>C:\mingw64\bin</code> with <b>gcc.exe</b> inside.</label></li>
+        <li><input type="checkbox" id="c2"><label for="c2">I added <code>C:\mingw64\bin</code> to <b>Path</b> in Environment Variables.</label></li>
+        <li><input type="checkbox" id="c3"><label for="c3">Typing <code>gcc --version</code> in a new Command Prompt shows a version number.</label></li>
+        <li><input type="checkbox" id="c4"><label for="c4">Sublime Text (or another editor) is installed.</label></li>
+        <li><input type="checkbox" id="c5"><label for="c5">I saved <code>hello.c</code> inside <code>C:\cprog</code>.</label></li>
+      </ul>
+    </div>
+
+    <div class="lesson-nav-bottom">
+      <a class="nav-btn" href="index.html">← All Lessons</a>
+      <a class="nav-btn primary" href="lesson-2-command-prompt.html">Lesson 2 →</a>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const THEME_KEY = 'cProgLessonsTheme';
+  const root = document.documentElement;
+  const btn = document.getElementById('themeToggle');
+  function eff() {
+    const x = root.getAttribute('data-theme');
+    if (x) return x;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  function icon() {
+    const d = eff() === 'dark';
+    btn.textContent = d ? '☀️' : '🌙';
+    btn.setAttribute('aria-label', d ? 'Switch to light mode' : 'Switch to dark mode');
+  }
+  let saved = null;
+  try { saved = localStorage.getItem(THEME_KEY); } catch (e) {}
+  if (saved === 'light' || saved === 'dark') root.setAttribute('data-theme', saved);
+  icon();
+  btn.addEventListener('click', () => {
+    const t = eff() === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', t); icon();
+    try { localStorage.setItem(THEME_KEY, t); } catch (e) {}
+  });
+
+  // copy buttons
+  document.querySelectorAll('.copy-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      const text = b.dataset.copy != null ? b.dataset.copy : document.getElementById(b.dataset.copyTarget).textContent;
+      const done = () => { const o = b.textContent; b.textContent = 'Copied!'; setTimeout(() => b.textContent = o, 1200); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, () => fallback(text, done));
+      } else fallback(text, done);
+    });
+  });
+  function fallback(text, done) {
+    const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta);
+    ta.select(); try { document.execCommand('copy'); done(); } catch (e) {} ta.remove();
+  }
+
+  // remember checklist
+  const CK = 'cProgL1Checklist';
+  let st = {};
+  try { st = JSON.parse(localStorage.getItem(CK) || '{}'); } catch (e) {}
+  document.querySelectorAll('#checklist input').forEach(i => {
+    i.checked = !!st[i.id];
+    i.addEventListener('change', () => { st[i.id] = i.checked; try { localStorage.setItem(CK, JSON.stringify(st)); } catch (e) {} });
+  });
+})();
+</script>
+</body>
+</html>

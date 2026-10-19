@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 2: Command Prompt Basics</title>
+<style>
+  :root {
+    --bg1: #eef2ff; --bg2: #f8fafc; --card: #ffffff;
+    --card-border: rgba(15,23,42,0.06); --ink: #1e293b; --muted: #64748b;
+    --accent: #6366f1; --accent-ink: #ffffff;
+    --tip-bg: #fef9c3; --tip-border: #eab308; --tip-ink: #713f12;
+    --warn-bg: #fee2e2; --warn-border: #ef4444; --warn-ink: #7f1d1d;
+    --recap-bg: #ecfdf5; --recap-border: #10b981;
+    --shadow: rgba(15,23,42,0.15); --btn-secondary-bg: #e2e8f0; --btn-secondary-ink: #1e293b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg1: #1e1b4b; --bg2: #0f172a; --card: #1a2036;
+      --card-border: rgba(255,255,255,0.08); --ink: #e7ecff; --muted: #94a3b8;
+      --accent: #818cf8; --accent-ink: #0f172a;
+      --tip-bg: #3f3311; --tip-border: #eab308; --tip-ink: #fef08a;
+      --warn-bg: #3b1212; --warn-border: #f87171; --warn-ink: #fecaca;
+      --recap-bg: #082f22; --recap-border: #34d399;
+      --shadow: rgba(0,0,0,0.5); --btn-secondary-bg: #2a3252; --btn-secondary-ink: #e7ecff;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg1: #1e1b4b; --bg2: #0f172a; --card: #1a2036;
+    --card-border: rgba(255,255,255,0.08); --ink: #e7ecff; --muted: #94a3b8;
+    --accent: #818cf8; --accent-ink: #0f172a;
+    --tip-bg: #3f3311; --tip-border: #eab308; --tip-ink: #fef08a;
+    --warn-bg: #3b1212; --warn-border: #f87171; --warn-ink: #fecaca;
+    --recap-bg: #082f22; --recap-border: #34d399;
+    --shadow: rgba(0,0,0,0.5); --btn-secondary-bg: #2a3252; --btn-secondary-ink: #e7ecff;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { height: 100%; }
+  body { margin: 0; overscroll-behavior: none; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(180deg, var(--bg1), var(--bg2));
+    min-height: 100dvh; display: flex; justify-content: center;
+    padding: 16px; color: var(--ink); transition: background 0.2s, color 0.2s;
+  }
+  .theme-toggle {
+    position: fixed; top: 14px; right: 14px; width: 42px; height: 42px;
+    border-radius: 50%; background: var(--card); border: 1px solid var(--card-border);
+    box-shadow: 0 4px 14px var(--shadow); font-size: 19px; display: flex;
+    align-items: center; justify-content: center; cursor: pointer; z-index: 20; padding: 0;
+  }
+  .theme-toggle:active { transform: scale(0.92); }
+  .wrap { width: 100%; max-width: 760px; padding-top: 8px; }
+  .card { background: var(--card); border: 1px solid var(--card-border); border-radius: 20px; padding: 26px 24px; box-shadow: 0 20px 60px var(--shadow); }
+  .lesson-nav-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 13.5px; padding-right: 48px; }
+  .lesson-nav-top a { color: var(--accent); text-decoration: none; font-weight: 600; }
+  .lesson-badge { background: var(--bg1); color: var(--accent); font-weight: 700; font-size: 11.5px; padding: 4px 10px; border-radius: 999px; }
+  h1 { font-size: clamp(22px, 5vw, 28px); margin: 0 0 4px; }
+  .subtitle { color: var(--muted); font-size: 14.5px; margin-bottom: 18px; line-height: 1.5; }
+  h2.section-title { font-size: 18px; margin: 32px 0 10px; padding-top: 18px; border-top: 1px solid var(--card-border); }
+  h3 { font-size: 15.5px; margin: 20px 0 6px; }
+  p { line-height: 1.65; font-size: 15px; }
+  a { color: var(--accent); }
+  .steps { padding-left: 22px; margin: 10px 0; }
+  .steps li { line-height: 1.65; font-size: 15px; margin-bottom: 8px; }
+  .tip, .warn { border-left: 4px solid; border-radius: 8px; padding: 12px 14px; font-size: 14px; line-height: 1.55; margin: 16px 0; }
+  .tip { background: var(--tip-bg); border-color: var(--tip-border); color: var(--tip-ink); }
+  .warn { background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn-ink); }
+  .tip b.t, .warn b.t { display: block; margin-bottom: 3px; }
+  .recap { background: var(--recap-bg); border: 1px solid var(--recap-border); border-radius: 14px; padding: 16px 18px; margin-top: 30px; }
+  .recap h2 { margin: 0 0 10px; font-size: 16px; }
+  .recap ul { margin: 0; padding-left: 20px; font-size: 14.5px; line-height: 1.75; }
+  .lesson-nav-bottom { display: flex; gap: 10px; margin-top: 24px; }
+  .nav-btn { flex: 1; text-align: center; padding: 13px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 14.5px; background: var(--btn-secondary-bg); color: var(--btn-secondary-ink); }
+  .nav-btn.primary { background: var(--accent); color: var(--accent-ink); }
+  .toc { background: var(--bg1); border-radius: 12px; padding: 12px 16px; font-size: 14px; }
+  .toc ol { margin: 6px 0 0; padding-left: 20px; line-height: 1.8; }
+  .toc a { text-decoration: none; font-weight: 600; }
+  code, .kbd { font-family: Consolas, "Cascadia Mono", Menlo, monospace; }
+  code { background: var(--bg1); padding: 1px 6px; border-radius: 5px; font-size: 13.5px; word-break: break-word; }
+  .kbd { display: inline-block; padding: 1px 7px; border-radius: 5px; border: 1px solid var(--card-border); border-bottom-width: 3px; background: var(--bg1); font-weight: 700; font-size: 12.5px; color: var(--ink); white-space: nowrap; }
+
+  /* flow diagram */
+  .flow { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 16px 0; }
+  .flow .box { background: var(--bg1); border-radius: 12px; padding: 12px 14px; text-align: center; min-width: 120px; font-size: 13px; color: var(--muted); }
+  .flow .box b { display: block; color: var(--ink); font-size: 15px; font-family: Consolas, Menlo, monospace; margin-bottom: 2px; }
+  .flow .arrow { color: var(--accent); font-weight: 800; font-size: 20px; }
+
+  /* code + terminal blocks */
+  .codeblock { position: relative; margin: 12px 0; border-radius: 10px; overflow: hidden; box-shadow: 0 8px 22px var(--shadow); }
+  .codeblock .bar { background: #1f1f1f; color: #aaa; font: 12px "Segoe UI", sans-serif; padding: 7px 12px; display: flex; justify-content: space-between; align-items: center; }
+  .codeblock pre { margin: 0; background: #0c0c0c; color: #d4d4d4; padding: 12px 14px; font: 13.5px/1.6 Consolas, "Cascadia Mono", Menlo, monospace; overflow-x: auto; }
+  .copy-btn { background: #333; color: #ddd; border: 0; border-radius: 6px; font-size: 11.5px; padding: 3px 9px; cursor: pointer; }
+  .copy-btn:active { transform: scale(0.95); }
+  .c-kw { color: #c586c0; } .c-str { color: #ce9178; } .c-pp { color: #9cdcfe; } .c-com { color: #6a9955; } .c-fn { color: #dcdcaa; }
+  .t-out { color: #7ee787; } .t-err { color: #ff7b72; }
+
+  /* windows dialog mockups */
+  .dlg { border-radius: 8px; overflow: hidden; border: 1px solid rgba(0,0,0,0.15); box-shadow: 0 10px 30px var(--shadow); margin: 14px 0; background: #fff; color: #222; max-width: 440px; font: 12.5px "Segoe UI", sans-serif; }
+  .dlg-title { background: #f3f3f3; padding: 8px 12px; border-bottom: 1px solid #ddd; font-weight: 600; display: flex; justify-content: space-between; }
+  .dlg-body { padding: 12px; }
+  .dlg-label { font-weight: 600; margin: 6px 0 4px; }
+  .dlg-list { border: 1px solid #bbb; background: #fff; }
+  .dlg-list div { padding: 4px 8px; display: flex; gap: 14px; font-family: Consolas, monospace; font-size: 12px; }
+  .dlg-list div span:first-child { min-width: 80px; font-family: "Segoe UI", sans-serif; }
+  .dlg-list div.hl { background: #cce4f7; outline: 1px solid #0078d4; }
+  .dlg-list div.new { background: #e8f5e9; font-weight: 700; }
+  .dlg-btns { display: flex; gap: 6px; justify-content: flex-end; margin-top: 10px; flex-wrap: wrap; }
+  .dlg-btn { padding: 4px 14px; border: 1px solid #adadad; background: #e1e1e1; border-radius: 3px; }
+  .dlg-btn.hl { border-color: #0078d4; background: #cce4f7; box-shadow: 0 0 0 2px rgba(0,120,212,0.3); }
+  .dlg-side { display: flex; gap: 10px; }
+  .dlg-side .dlg-list { flex: 1; }
+  .dlg-side .col { display: flex; flex-direction: column; gap: 5px; }
+  .caption { font-size: 12.5px; color: var(--muted); text-align: center; margin-top: -4px; margin-bottom: 14px; }
+
+  .folder-tree { font: 13.5px/1.7 Consolas, Menlo, monospace; background: var(--bg1); border-radius: 10px; padding: 12px 16px; white-space: pre; overflow-x: auto; }
+  .folder-tree b { color: var(--accent); }
+
+  .editor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin: 12px 0; }
+  .editor-grid > div { background: var(--bg1); border-radius: 12px; padding: 12px 14px; font-size: 13.5px; line-height: 1.5; }
+  .editor-grid b { display: block; font-size: 14.5px; margin-bottom: 3px; }
+  .checklist { list-style: none; padding: 0; margin: 10px 0; }
+  .checklist li { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border-radius: 10px; font-size: 14.5px; line-height: 1.5; cursor: pointer; }
+  .checklist li:hover { background: var(--bg1); }
+  .checklist input { margin-top: 4px; width: 17px; height: 17px; accent-color: var(--accent); flex-shrink: 0; }
+
+  @media (max-width: 420px) { .card { padding: 18px 14px; } .dlg-side { flex-direction: column; } .dlg-side .col { flex-direction: row; flex-wrap: wrap; } }
+  /* lesson 2 extras */
+  .cmd-table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 12px 0; }
+  .cmd-table th, .cmd-table td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--card-border); vertical-align: top; line-height: 1.5; }
+  .cmd-table th { font-size: 12.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .cmd-table td:first-child { white-space: nowrap; }
+  .cmd-table code { font-weight: 700; }
+  .table-scroll { overflow-x: auto; }
+  .prompt-anatomy { display: flex; flex-wrap: wrap; gap: 0; font: 17px Consolas, Menlo, monospace; background: #0c0c0c; color: #ccc; border-radius: 10px; padding: 18px 16px 10px; margin: 12px 0; }
+  .prompt-anatomy .seg { display: flex; flex-direction: column; align-items: center; }
+  .prompt-anatomy .seg span:first-child { padding: 0 1px; border-bottom: 3px solid; }
+  .prompt-anatomy .seg small { font: 11.5px "Segoe UI", sans-serif; margin-top: 6px; color: #aaa; text-align: center; max-width: 120px; }
+  .seg.a span:first-child { border-color: #f59e0b; } .seg.b span:first-child { border-color: #60a5fa; } .seg.c span:first-child { border-color: #34d399; } .seg.d span:first-child { border-color: #f472b6; }
+
+  /* practice terminal */
+  .sim { background: #0c0c0c; border-radius: 12px; overflow: hidden; box-shadow: 0 12px 30px var(--shadow); margin: 14px 0; }
+  .sim .bar { background: #1f1f1f; color: #aaa; font: 12px "Segoe UI", sans-serif; padding: 7px 12px; display: flex; justify-content: space-between; align-items: center; }
+  .sim-screen { height: 340px; overflow-y: auto; padding: 12px 14px; font: 13.5px/1.55 Consolas, "Cascadia Mono", Menlo, monospace; color: #cccccc; cursor: text; }
+  .sim-screen pre { margin: 0; white-space: pre-wrap; word-break: break-word; font: inherit; }
+  .sim-line { display: flex; align-items: baseline; }
+  .sim-line input { flex: 1; min-width: 40px; background: transparent; border: 0; outline: 0; color: #fff; font: inherit; padding: 0; caret-color: #fff; }
+  .sim .o { color: #7ee787; } .sim .e { color: #ff7b72; } .sim .h { color: #f9d65c; }
+  .missions { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 6px; }
+  .missions li { background: var(--bg1); border-radius: 10px; padding: 9px 12px; font-size: 14px; display: flex; gap: 10px; align-items: center; line-height: 1.45; }
+  .missions li .chk { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--muted); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+  .missions li.done { color: var(--muted); }
+  .missions li.done .chk { background: #10b981; border-color: #10b981; color: #fff; }
+  .missions li.done .chk::after { content: "✓"; }
+  .reset-btn { background: #333; color: #ddd; border: 0; border-radius: 6px; font-size: 11.5px; padding: 3px 9px; cursor: pointer; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
+  @media (max-width: 560px) { .two-col { grid-template-columns: 1fr; } }
+  .two-col > div { background: var(--bg1); border-radius: 12px; padding: 12px 14px; font-size: 14px; line-height: 1.55; }
+  .two-col h3 { margin: 0 0 6px; font-size: 15px; }
+</style>
+</head>
+<body>
+<button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark mode">🌙</button>
+<div class="wrap">
+  <div class="card">
+    <div class="lesson-nav-top">
+      <a href="index.html">← All Lessons</a>
+      <span class="lesson-badge">Lesson 2</span>
+    </div>
+
+    <h1>⌨️ Command Prompt Basics</h1>
+    <div class="subtitle">Programmers often control the computer by <b>typing commands</b> instead of clicking. In this lesson you'll learn to move between folders in the Command Prompt, then compile and run your C program with <b>gcc</b>.</div>
+
+    <div class="toc">
+      <b>In this lesson</b>
+      <ol>
+        <li><a href="#open">Opening the Command Prompt</a></li>
+        <li><a href="#prompt">Reading the prompt</a></li>
+        <li><a href="#commands">The most common commands</a></li>
+        <li><a href="#tricks">Time-saving tricks</a></li>
+        <li><a href="#gcc">Compile and run with gcc</a></li>
+        <li><a href="#errors">Common errors and fixes</a></li>
+        <li><a href="#practice">Practice terminal</a></li>
+        <li><a href="#mac">Bonus: Mac and Linux Terminal</a></li>
+      </ol>
+    </div>
+
+    <!-- 1 -->
+    <h2 class="section-title" id="open">1. Opening the Command Prompt</h2>
+    <p>The <b>Command Prompt</b> (also called <b>cmd</b>, the <b>terminal</b>, or the <b>console</b>) is a black window where you type commands. Here are three ways to open it:</p>
+    <ol class="steps">
+      <li><b>Run box:</b> press <span class="kbd">⊞ Win</span> + <span class="kbd">R</span>, type <code>cmd</code>, and press <span class="kbd">Enter</span>.</li>
+      <li><b>Start menu:</b> press <span class="kbd">⊞ Win</span>, type <code>cmd</code>, and click <b>Command Prompt</b>.</li>
+      <li><b>From a folder ⭐:</b> open your folder (like <code>C:\cprog</code>) in File Explorer, click the <b>address bar</b> at the top, type <code>cmd</code>, and press <span class="kbd">Enter</span>. The Command Prompt opens <i>already inside that folder</i>!</li>
+    </ol>
+
+    <!-- 2 -->
+    <h2 class="section-title" id="prompt">2. Reading the prompt</h2>
+    <p>The text before the blinking cursor is called the <b>prompt</b>. It tells you <b>which folder you are in right now</b>. This is your <b>current directory</b>. (<i>Directory</i> is another word for <i>folder</i>.)</p>
+    <div class="prompt-anatomy" aria-label="C:\Users\Student> prompt">
+      <div class="seg a"><span>C:</span><small>Drive</small></div>
+      <div class="seg b"><span>\Users\Student</span><small>Folder path</small></div>
+      <div class="seg c"><span>&gt;</span><small>Type after this</small></div>
+      <div class="seg d"><span>&nbsp;dir</span><small>Your command</small></div>
+    </div>
+    <p>So <code>C:\Users\Student&gt;</code> means: "You are inside the <b>Student</b> folder, which is inside <b>Users</b>, on drive <b>C:</b>." The backslash <code>\</code> separates folder names.</p>
+
+    <!-- 3 -->
+    <h2 class="section-title" id="commands">3. The most common commands</h2>
+    <p>Type a command and press <span class="kbd">Enter</span> to run it. Commands are <b>not</b> case-sensitive, so <code>DIR</code> and <code>dir</code> do the same thing.</p>
+
+    <h3>🧭 Moving around</h3>
+    <div class="table-scroll"><table class="cmd-table">
+      <tr><th>Command</th><th>What it does</th><th>Example</th></tr>
+      <tr><td><code>dir</code></td><td>Lists the files and folders in the current folder.</td><td><code>dir</code></td></tr>
+      <tr><td><code>cd folder</code></td><td><b>C</b>hange <b>D</b>irectory: goes <i>into</i> a folder.</td><td><code>cd Documents</code></td></tr>
+      <tr><td><code>cd ..</code></td><td>Goes <b>up</b> one folder (back to the parent folder).</td><td><code>cd ..</code></td></tr>
+      <tr><td><code>cd \</code></td><td>Jumps all the way to the top of the drive (<code>C:\</code>).</td><td><code>cd \</code></td></tr>
+      <tr><td><code>cd C:\full\path</code></td><td>Jumps straight to any folder by typing its full path.</td><td><code>cd C:\cprog</code></td></tr>
+      <tr><td><code>cd</code></td><td>With nothing after it, shows the current folder's path.</td><td><code>cd</code></td></tr>
+      <tr><td><code>D:</code></td><td>Switches to another drive, such as a flash drive.</td><td><code>D:</code></td></tr>
+      <tr><td><code>cd /d D:\path</code></td><td>Changes drive <b>and</b> folder at the same time.</td><td><code>cd /d D:\school</code></td></tr>
+    </table></div>
+
+    <h3>📁 Working with files and folders</h3>
+    <div class="table-scroll"><table class="cmd-table">
+      <tr><th>Command</th><th>What it does</th><th>Example</th></tr>
+      <tr><td><code>mkdir name</code></td><td><b>M</b>a<b>k</b>e <b>dir</b>ectory: creates a new folder. (<code>md</code> works too.)</td><td><code>mkdir activity1</code></td></tr>
+      <tr><td><code>type file</code></td><td>Shows what's written inside a text file.</td><td><code>type hello.c</code></td></tr>
+      <tr><td><code>copy a b</code></td><td>Makes a copy of a file.</td><td><code>copy hello.c hello2.c</code></td></tr>
+      <tr><td><code>ren old new</code></td><td>Renames a file.</td><td><code>ren hello2.c test.c</code></td></tr>
+      <tr><td><code>del file</code></td><td>Deletes a file. ⚠️ It does <b>not</b> go to the Recycle Bin!</td><td><code>del test.c</code></td></tr>
+      <tr><td><code>start .</code></td><td>Opens the current folder in File Explorer.</td><td><code>start .</code></td></tr>
+      <tr><td><code>notepad file</code></td><td>Opens a file in Notepad.</td><td><code>notepad hello.c</code></td></tr>
+    </table></div>
+
+    <h3>🧹 Other useful commands</h3>
+    <div class="table-scroll"><table class="cmd-table">
+      <tr><th>Command</th><th>What it does</th></tr>
+      <tr><td><code>cls</code></td><td><b>Cl</b>ear <b>s</b>creen: wipes the window clean.</td></tr>
+      <tr><td><code>help</code></td><td>Lists the built-in commands. <code>cd /?</code> shows help for one command.</td></tr>
+      <tr><td><code>exit</code></td><td>Closes the Command Prompt window.</td></tr>
+    </table></div>
+
+    <!-- 4 -->
+    <h2 class="section-title" id="tricks">4. Time-saving tricks</h2>
+    <div class="two-col">
+      <div><h3><span class="kbd">Tab</span> auto-complete</h3>Type the first few letters of a file or folder name, then press <b>Tab</b>. Cmd finishes the name for you, e.g. <code>cd Doc</code> + <span class="kbd">Tab</span> becomes <code>cd Documents</code>.</div>
+      <div><h3><span class="kbd">↑</span> <span class="kbd">↓</span> history</h3>Press the <b>Up arrow</b> to bring back the commands you typed before. You don't have to retype <code>gcc ...</code> every time!</div>
+      <div><h3>"Quotes" for spaces</h3>If a folder name has spaces, put quotes around it: <code>cd "My Programs"</code>. Better yet, avoid spaces in your folder names.</div>
+      <div><h3><span class="kbd">Ctrl</span> + <span class="kbd">C</span> to stop</h3>If a program gets stuck (like a loop that never ends), press <b>Ctrl + C</b> to stop it.</div>
+    </div>
+
+    <!-- 5 -->
+    <h2 class="section-title" id="gcc">5. Compile and run with gcc</h2>
+    <p>Now let's put it all together using the <code>hello.c</code> file you saved in <code>C:\cprog</code> in Lesson 1.</p>
+
+    <h3>Step 1: Go to your folder</h3>
+    <div class="codeblock">
+      <div class="bar"><span>Command Prompt</span><button class="copy-btn" data-copy="cd C:\cprog">Copy</button></div>
+      <pre>C:\Users\Student&gt; cd C:\cprog
+C:\cprog&gt;</pre>
+    </div>
+
+    <h3>Step 2: Check that hello.c is there</h3>
+    <div class="codeblock">
+      <div class="bar"><span>Command Prompt</span></div>
+      <pre>C:\cprog&gt; dir
+<span class="t-out"> Directory of C:\cprog
+
+10/19/2026  08:00 PM    &lt;DIR&gt;          .
+10/19/2026  08:00 PM    &lt;DIR&gt;          ..
+10/19/2026  08:00 PM                88 hello.c
+               1 File(s)             88 bytes</span></pre>
+    </div>
+
+    <h3>Step 3: Compile it</h3>
+    <div class="codeblock">
+      <div class="bar"><span>Command Prompt</span><button class="copy-btn" data-copy="gcc hello.c -o hello">Copy</button></div>
+      <pre>C:\cprog&gt; gcc hello.c -o hello
+C:\cprog&gt;</pre>
+    </div>
+    <p>Let's break that command down:</p>
+    <div class="table-scroll"><table class="cmd-table">
+      <tr><td><code>gcc</code></td><td>Run the compiler.</td></tr>
+      <tr><td><code>hello.c</code></td><td>The C file you want to compile (the <b>input</b>).</td></tr>
+      <tr><td><code>-o hello</code></td><td><b>-o</b> means <b>output</b>: name the program <code>hello.exe</code>. If you leave this out, gcc names it <code>a.exe</code>.</td></tr>
+    </table></div>
+    <div class="tip">
+      <b class="t">💡 No message = good news!</b>
+      If gcc prints <b>nothing</b> and just shows the prompt again, your program compiled with no errors. Type <code>dir</code> and you'll see a new file: <b>hello.exe</b>.
+    </div>
+
+    <h3>Step 4: Run it</h3>
+    <div class="codeblock">
+      <div class="bar"><span>Command Prompt</span><button class="copy-btn" data-copy="hello">Copy</button></div>
+      <pre>C:\cprog&gt; hello
+<span class="t-out">Hello, World!</span>
+C:\cprog&gt;</pre>
+    </div>
+    <p>🎉 You just compiled and ran your first C program!</p>
+
+    <h3>The programmer's loop</h3>
+    <div class="flow">
+      <div class="box"><b>Edit</b>Change code in<br>Sublime Text</div>
+      <div class="arrow">→</div>
+      <div class="box"><b>Save</b><span class="kbd">Ctrl</span> + <span class="kbd">S</span></div>
+      <div class="arrow">→</div>
+      <div class="box"><b>Compile</b><code>gcc hello.c -o hello</code></div>
+      <div class="arrow">→</div>
+      <div class="box"><b>Run</b><code>hello</code></div>
+    </div>
+    <p>Every time you change your code, you must <b>save</b> and <b>compile again</b>. Otherwise you'll keep running the old version! Use the <span class="kbd">↑</span> arrow to repeat the gcc command quickly.</p>
+    <div class="tip">
+      <b class="t">💡 Turn on warnings</b>
+      Add <code>-Wall</code> to see helpful <b>warnings</b> about code that might be wrong:<br><code>gcc -Wall hello.c -o hello</code>
+    </div>
+    <div class="tip">
+      <b class="t">💡 Using PowerShell or Windows Terminal?</b>
+      Everything above works there too, except that to run your program you type <code>.\hello</code> instead of just <code>hello</code>.
+    </div>
+
+    <!-- 6 -->
+    <h2 class="section-title" id="errors">6. Common errors and fixes</h2>
+    <div class="table-scroll"><table class="cmd-table">
+      <tr><th>You see…</th><th>It means…</th><th>Fix</th></tr>
+      <tr><td><code class="t-err" style="background:none;padding:0;color:var(--warn-border)">'gcc' is not recognized…</code></td><td>Windows can't find gcc.</td><td>Check your PATH from <a href="lesson-1-installing-c.html#path">Lesson 1</a>, then open a <b>new</b> cmd window.</td></tr>
+      <tr><td><code style="color:var(--warn-border)">No such file or directory</code></td><td>gcc can't find your .c file in this folder.</td><td>Use <code>dir</code> to look. Are you in the right folder? Is it really named <code>hello.c</code> (not <code>hello.c.txt</code>)?</td></tr>
+      <tr><td><code style="color:var(--warn-border)">The system cannot find the path specified.</code></td><td>The folder you typed after <code>cd</code> doesn't exist.</td><td>Check the spelling. Use <span class="kbd">Tab</span> to auto-complete.</td></tr>
+      <tr><td><code style="color:var(--warn-border)">hello.c:4:5: error: …</code></td><td>There's a mistake in your code on <b>line 4</b>, column 5.</td><td>Go to that line in Sublime. Look for a missing <code>;</code> or <code>"</code> or <code>}</code>.</td></tr>
+      <tr><td>Old output still shows</td><td>You didn't save or recompile.</td><td><span class="kbd">Ctrl</span>+<span class="kbd">S</span>, then run gcc again.</td></tr>
+      <tr><td><code style="color:var(--warn-border)">Permission denied</code> (ld.exe)</td><td>The old hello.exe is still running.</td><td>Close the program's window (or press <span class="kbd">Ctrl</span>+<span class="kbd">C</span>), then compile again.</td></tr>
+    </table></div>
+
+    <!-- 7 -->
+    <h2 class="section-title" id="practice">7. Practice terminal 🎮</h2>
+    <p>This is a <b>pretend</b> Command Prompt, so you can practice safely on any device, even a phone. Click inside it and complete the missions. Type <code>help</code> to see the commands it understands.</p>
+
+    <div class="sim">
+      <div class="bar"><span>Practice Command Prompt</span><button class="reset-btn" id="simReset" type="button">Reset</button></div>
+      <div class="sim-screen" id="simScreen">
+        <pre id="simOut"></pre>
+        <div class="sim-line"><pre id="simPrompt"></pre><input id="simIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Type a command"></div>
+      </div>
+    </div>
+
+    <ul class="missions" id="missions">
+      <li data-m="dir"><span class="chk"></span><span>List the files in your current folder.</span></li>
+      <li data-m="cdin"><span class="chk"></span><span>Go into the <b>Documents</b> folder.</span></li>
+      <li data-m="up"><span class="chk"></span><span>Go back <b>up</b> one folder.</span></li>
+      <li data-m="cprog"><span class="chk"></span><span>Jump straight to <code>C:\cprog</code>.</span></li>
+      <li data-m="type"><span class="chk"></span><span>Show what's inside <code>hello.c</code>.</span></li>
+      <li data-m="gcc"><span class="chk"></span><span>Compile <code>hello.c</code> into a program named <code>hello</code>.</span></li>
+      <li data-m="run"><span class="chk"></span><span>Run your program!</span></li>
+      <li data-m="mkdir"><span class="chk"></span><span>Make a new folder called <code>activity1</code>.</span></li>
+      <li data-m="cls"><span class="chk"></span><span>Clear the screen.</span></li>
+    </ul>
+
+    <!-- 8 -->
+    <h2 class="section-title" id="mac">8. Bonus: Mac and Linux Terminal</h2>
+    <p>On a Mac or Linux computer, the black window is called the <b>Terminal</b>. Most ideas are the same, but a few commands have different names:</p>
+    <div class="table-scroll"><table class="cmd-table">
+      <tr><th>Task</th><th>Windows (cmd)</th><th>Mac / Linux</th></tr>
+      <tr><td>List files</td><td><code>dir</code></td><td><code>ls</code></td></tr>
+      <tr><td>Change folder</td><td><code>cd folder</code></td><td><code>cd folder</code></td></tr>
+      <tr><td>Go up one folder</td><td><code>cd ..</code></td><td><code>cd ..</code></td></tr>
+      <tr><td>Show current folder</td><td><code>cd</code></td><td><code>pwd</code></td></tr>
+      <tr><td>Clear screen</td><td><code>cls</code></td><td><code>clear</code></td></tr>
+      <tr><td>Make folder</td><td><code>mkdir</code></td><td><code>mkdir</code></td></tr>
+      <tr><td>Show file contents</td><td><code>type</code></td><td><code>cat</code></td></tr>
+      <tr><td>Delete file</td><td><code>del</code></td><td><code>rm</code></td></tr>
+      <tr><td>Folder separator</td><td><code>\</code></td><td><code>/</code></td></tr>
+      <tr><td>Compile</td><td><code>gcc hello.c -o hello</code></td><td><code>gcc hello.c -o hello</code></td></tr>
+      <tr><td>Run program</td><td><code>hello</code></td><td><code>./hello</code></td></tr>
+    </table></div>
+
+    <div class="tip">
+      <b class="t">Try It! On a real computer</b>
+      Open the Command Prompt. Use <code>cd</code> to go to <code>C:\cprog</code>. Make a folder called <code>activity1</code> with <code>mkdir</code>, then <code>cd</code> into it. In Sublime, save a new program there that prints <b>your name</b> and <b>your grade and section</b> on two lines. Compile it with gcc and run it. Show your teacher the output!
+    </div>
+
+    <div class="recap">
+      <h2>✅ What You Learned</h2>
+      <ul>
+        <li>The <b>prompt</b> (like <code>C:\cprog&gt;</code>) shows your current folder.</li>
+        <li><code>dir</code> lists files, <code>cd</code> moves into a folder, <code>cd ..</code> goes up, and <code>mkdir</code> makes a folder.</li>
+        <li><code>cls</code> clears the screen. <span class="kbd">Tab</span> auto-completes and <span class="kbd">↑</span> repeats old commands.</li>
+        <li><code>gcc hello.c -o hello</code> compiles your code, and <code>hello</code> runs it.</li>
+        <li>Always <b>Edit → Save → Compile → Run</b>.</li>
+      </ul>
+    </div>
+
+    <div class="lesson-nav-bottom">
+      <a class="nav-btn" href="lesson-1-installing-c.html">← Lesson 1</a>
+      <a class="nav-btn primary" href="index.html">All Lessons</a>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  /* ---------- theme ---------- */
+  const THEME_KEY = 'cProgLessonsTheme';
+  const root = document.documentElement;
+  const btn = document.getElementById('themeToggle');
+  function eff() {
+    const x = root.getAttribute('data-theme');
+    if (x) return x;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  function icon() {
+    const d = eff() === 'dark';
+    btn.textContent = d ? '☀️' : '🌙';
+    btn.setAttribute('aria-label', d ? 'Switch to light mode' : 'Switch to dark mode');
+  }
+  let saved = null;
+  try { saved = localStorage.getItem(THEME_KEY); } catch (e) {}
+  if (saved === 'light' || saved === 'dark') root.setAttribute('data-theme', saved);
+  icon();
+  btn.addEventListener('click', () => {
+    const t = eff() === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', t); icon();
+    try { localStorage.setItem(THEME_KEY, t); } catch (e) {}
+  });
+
+  /* ---------- copy buttons ---------- */
+  document.querySelectorAll('.copy-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      const text = b.dataset.copy;
+      const done = () => { const o = b.textContent; b.textContent = 'Copied!'; setTimeout(() => b.textContent = o, 1200); };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, () => fb(text, done));
+      else fb(text, done);
+    });
+  });
+  function fb(text, done) {
+    const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta);
+    ta.select(); try { document.execCommand('copy'); done(); } catch (e) {} ta.remove();
+  }
+
+  /* ---------- practice terminal ---------- */
+  const HELLO_SRC = '#include <stdio.h>\n\nint main() {\n    printf("Hello, World!\\n");\n    return 0;\n}\n';
+  const NOT_RECOGNIZED = n => `'${n}' is not recognized as an internal or external command,\noperable program or batch file.`;
+  const screen = document.getElementById('simScreen');
+  const out = document.getElementById('simOut');
+  const promptEl = document.getElementById('simPrompt');
+  const input = document.getElementById('simIn');
+  let fs, cwd, history = [], hIdx = 0;
+
+  function dir() { return { type: 'dir', children: {} }; }
+  function file(content) { return { type: 'file', content }; }
+  function freshFS() {
+    const r = dir();
+    r.children['Users'] = dir();
+    r.children['Users'].children['Student'] = dir();
+    const st = r.children['Users'].children['Student'].children;
+    st['Desktop'] = dir(); st['Documents'] = dir(); st['Downloads'] = dir();
+    st['Documents'].children['notes.txt'] = file('Remember: Edit, Save, Compile, Run!\n');
+    r.children['cprog'] = dir();
+    r.children['cprog'].children['hello.c'] = file(HELLO_SRC);
+    r.children['mingw64'] = dir();
+    r.children['mingw64'].children['bin'] = dir();
+    r.children['mingw64'].children['bin'].children['gcc.exe'] = file('');
+    return r;
+  }
+  function pathStr(parts) { return 'C:\\' + parts.join('\\'); }
+  function nodeAt(parts) {
+    let n = fs;
+    for (const p of parts) { n = n.children[p]; if (!n) return null; }
+    return n;
+  }
+  function findKey(d, name) {
+    const l = name.toLowerCase();
+    return Object.keys(d.children).find(k => k.toLowerCase() === l);
+  }
+  // resolve a path string to canonical parts (array) or null
+  function resolve(p) {
+    p = p.replace(/^"|"$/g, '').replace(/\//g, '\\');
+    let parts;
+    if (/^c:/i.test(p)) { parts = []; p = p.slice(2); }
+    else if (/^[a-z]:/i.test(p)) return 'otherdrive';
+    else parts = cwd.slice();
+    if (p.startsWith('\\')) parts = [];
+    for (const seg of p.split('\\')) {
+      if (!seg || seg === '.') continue;
+      if (seg === '..') { parts.pop(); continue; }
+      const d = nodeAt(parts);
+      if (!d || d.type !== 'dir') return null;
+      const k = findKey(d, seg);
+      if (!k) return null;
+      parts.push(k);
+    }
+    return parts;
+  }
+  function print(text, cls) {
+    const s = document.createElement('span');
+    if (cls) s.className = cls;
+    s.textContent = text + '\n';
+    out.appendChild(s);
+  }
+  function setPrompt() { promptEl.textContent = pathStr(cwd) + '>'; }
+  function scroll() { screen.scrollTop = screen.scrollHeight; }
+  function stamp() {
+    const d = new Date();
+    const mm = String(d.getMonth() + 1).padStart(2, '0'), dd = String(d.getDate()).padStart(2, '0');
+    let h = d.getHours(); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12;
+    return `${mm}/${dd}/${d.getFullYear()}  ${String(h).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')} ${ap}`;
+  }
+
+  const missions = {};
+  document.querySelectorAll('#missions li').forEach(li => missions[li.dataset.m] = li);
+  function done(m) {
+    const li = missions[m]; if (!li || li.classList.contains('done')) return;
+    li.classList.add('done');
+    if (Object.values(missions).every(x => x.classList.contains('done'))) {
+      setTimeout(() => { print('\n🎉 All missions complete! You are ready to use the real Command Prompt.', 'h'); scroll(); }, 50);
+    }
+  }
+
+  function cmdDir(arg) {
+    let parts = cwd;
+    if (arg) { const r = resolve(arg); if (!r || r === 'otherdrive') { print('File Not Found', 'e'); return; } parts = r; }
+    const d = nodeAt(parts);
+    if (d.type !== 'dir') { print('File Not Found', 'e'); return; }
+    const t = stamp();
+    const lines = [' Volume in drive C has no label.', ' Directory of ' + pathStr(parts), ''];
+    if (parts.length) { lines.push(`${t}    <DIR>          .`); lines.push(`${t}    <DIR>          ..`); }
+    let files = 0, bytes = 0, dirs = 0;
+    Object.keys(d.children).sort((a, b) => a.localeCompare(b)).forEach(k => {
+      const n = d.children[k];
+      if (n.type === 'dir') { dirs++; lines.push(`${t}    <DIR>          ${k}`); }
+      else { files++; const sz = n.content.length || 2048; bytes += sz; lines.push(`${t}    ${String(sz).padStart(14)} ${k}`); }
+    });
+    lines.push(`${String(files).padStart(16)} File(s) ${String(bytes).padStart(14)} bytes`);
+    lines.push(`${String(dirs).padStart(16)} Dir(s)`);
+    print(lines.join('\n'), 'o');
+    if (!arg) done('dir');
+  }
+
+  function cmdCd(arg) {
+    if (!arg) { print(pathStr(cwd)); return; }
+    arg = arg.replace(/^\/d\s+/i, '');
+    const before = cwd.slice();
+    const r = resolve(arg);
+    if (r === 'otherdrive') { print('The system cannot find the drive specified.', 'e'); return; }
+    if (!r) { print('The system cannot find the path specified.', 'e'); return; }
+    if (nodeAt(r).type !== 'dir') { print('The directory name is invalid.', 'e'); return; }
+    cwd = r;
+    if (pathStr(cwd).toLowerCase() === 'c:\\users\\student\\documents') done('cdin');
+    if (before.length === cwd.length + 1 && before.slice(0, -1).join('\\') === cwd.join('\\')) done('up');
+    if (pathStr(cwd).toLowerCase() === 'c:\\cprog') done('cprog');
+  }
+
+  function cmdGcc(args) {
+    if (!args.length) { print('gcc: fatal error: no input files\ncompilation terminated.', 'e'); return; }
+    if (args[0] === '--version' || args[0] === '-v') {
+      print('gcc (MinGW-W64 x86_64-ucrt-posix-seh) 15.2.0\nCopyright (C) 2025 Free Software Foundation, Inc.', 'o'); return;
+    }
+    let src = null, outName = 'a';
+    for (let i = 0; i < args.length; i++) {
+      if (args[i] === '-o') { outName = args[++i]; if (!outName) { print("gcc: error: missing filename after '-o'", 'e'); return; } }
+      else if (args[i].startsWith('-')) continue;
+      else src = args[i];
+    }
+    if (!src) { print('gcc: fatal error: no input files\ncompilation terminated.', 'e'); return; }
+    const d = nodeAt(cwd);
+    const k = findKey(d, src);
+    if (!k || d.children[k].type !== 'file') {
+      print(`gcc: error: ${src}: No such file or directory\ngcc: fatal error: no input files\ncompilation terminated.`, 'e');
+      if (pathStr(cwd).toLowerCase() !== 'c:\\cprog') print('Hint: hello.c is in C:\\cprog. Use cd to go there first!', 'h');
+      return;
+    }
+    if (!/\.c$/i.test(k)) { print(`${k}: file not recognized: file format not recognized\ncollect2.exe: error: ld returned 1 exit status`, 'e'); return; }
+    if (!/\.exe$/i.test(outName)) outName += '.exe';
+    const m = d.children[k].content.match(/printf\s*\(\s*"((?:[^"\\]|\\.)*)"/);
+    const text = m ? m[1].replace(/\\n/g, '\n').replace(/\\t/g, '\t').replace(/\\"/g, '"') : '';
+    const ek = findKey(d, outName) || outName;
+    d.children[ek] = file('MZ' + ' '.repeat(2046));
+    d.children[ek].output = text;
+    if (/^hello\.c$/i.test(k) && /^hello\.exe$/i.test(ek)) done('gcc');
+  }
+
+  function run(line) {
+    const raw = line.trim();
+    if (!raw) return;
+    let m = raw.match(/^(cd|chdir)(\.\.|\\)(.*)$/i);           // cd.. and cd\ without space
+    const norm = m ? `${m[1]} ${m[2]}${m[3]}` : raw;
+    const tokens = norm.match(/"[^"]*"|\S+/g) || [];
+    const cmd = tokens[0].toLowerCase();
+    const rest = norm.slice(tokens[0].length).trim();
+    const args = tokens.slice(1).map(t => t.replace(/^"|"$/g, ''));
+
+    switch (cmd) {
+      case 'dir': cmdDir(rest); return;
+      case 'cd': case 'chdir': cmdCd(rest); return;
+      case 'cls': out.textContent = ''; done('cls'); return;
+      case 'clear': print(NOT_RECOGNIZED('clear'), 'e'); print('Hint: clear is for Mac/Linux. On Windows, use cls.', 'h'); return;
+      case 'ls': print(NOT_RECOGNIZED('ls'), 'e'); print('Hint: ls is for Mac/Linux. On Windows, use dir.', 'h'); return;
+      case 'pwd': print(NOT_RECOGNIZED('pwd'), 'e'); print('Hint: on Windows, type cd by itself to see where you are.', 'h'); return;
+      case 'mkdir': case 'md': {
+        if (!args[0]) { print('The syntax of the command is incorrect.', 'e'); return; }
+        const d = nodeAt(cwd);
+        if (findKey(d, args[0])) { print(`A subdirectory or file ${args[0]} already exists.`, 'e'); return; }
+        if (/[\\/:*?"<>|]/.test(args[0])) { print('The syntax of the command is incorrect.', 'e'); return; }
+        d.children[args[0]] = dir();
+        if (args[0].toLowerCase() === 'activity1') done('mkdir');
+        return;
+      }
+      case 'type': case 'cat': {
+        if (cmd === 'cat') { print(NOT_RECOGNIZED('cat'), 'e'); print('Hint: on Windows, use type.', 'h'); return; }
+        if (!args[0]) { print('The syntax of the command is incorrect.', 'e'); return; }
+        const d = nodeAt(cwd), k = findKey(d, args[0]);
+        if (!k) { print('The system cannot find the file specified.', 'e'); return; }
+        if (d.children[k].type === 'dir') { print('Access is denied.', 'e'); return; }
+        if (/\.exe$/i.test(k)) { print('MZ\u2591\u2592\u2593... (this is machine code, not readable text!)', 'o'); return; }
+        print(d.children[k].content.replace(/\n$/, ''), 'o');
+        if (/^hello\.c$/i.test(k)) done('type');
+        return;
+      }
+      case 'del': case 'erase': {
+        if (!args[0]) { print('The syntax of the command is incorrect.', 'e'); return; }
+        const d = nodeAt(cwd), k = findKey(d, args[0]);
+        if (!k || d.children[k].type !== 'file') { print('Could Not Find ' + pathStr(cwd.concat(args[0])), 'e'); return; }
+        delete d.children[k]; return;
+      }
+      case 'copy': {
+        if (args.length < 2) { print('The syntax of the command is incorrect.', 'e'); return; }
+        const d = nodeAt(cwd), k = findKey(d, args[0]);
+        if (!k || d.children[k].type !== 'file') { print('The system cannot find the file specified.\n        0 file(s) copied.', 'e'); return; }
+        d.children[args[1]] = Object.assign({}, d.children[k]);
+        print('        1 file(s) copied.', 'o'); return;
+      }
+      case 'ren': case 'rename': {
+        if (args.length < 2) { print('The syntax of the command is incorrect.', 'e'); return; }
+        const d = nodeAt(cwd), k = findKey(d, args[0]);
+        if (!k) { print('The system cannot find the file specified.', 'e'); return; }
+        if (findKey(d, args[1])) { print('A duplicate file name exists, or the file cannot be found.', 'e'); return; }
+        d.children[args[1]] = d.children[k]; delete d.children[k]; return;
+      }
+      case 'echo': print(rest || 'ECHO is on.'); return;
+      case 'gcc': cmdGcc(args); return;
+      case 'help':
+        print('Commands this practice terminal understands:\n' +
+          '  dir            list files and folders\n' +
+          '  cd <folder>    go into a folder   (cd .. = up, cd \\ = top)\n' +
+          '  mkdir <name>   make a new folder\n' +
+          '  type <file>    show what is inside a file\n' +
+          '  copy, ren, del copy, rename, delete a file\n' +
+          '  gcc <file.c> -o <name>   compile a C program\n' +
+          '  <name>         run a program you compiled\n' +
+          '  cls            clear the screen\n' +
+          '  exit           (try it!)', 'o');
+        return;
+      case 'exit': print("In the real Command Prompt, 'exit' closes the window. Here, we'll keep it open so you can keep practicing!", 'h'); return;
+      case 'notepad': case 'start': case 'subl': print(`(In real Windows, this would open ${cmd === 'start' ? 'File Explorer' : 'an editor'}.)`, 'h'); return;
+    }
+
+    // try to run a program
+    if (cmd.startsWith('./')) { print("'.' is not recognized as an internal or external command,\noperable program or batch file.", 'e'); print('Hint: ./hello is for Mac/Linux. In cmd, just type hello', 'h'); return; }
+    const name = tokens[0].replace(/^\.\\/, '');
+    const d = nodeAt(cwd);
+    const k = findKey(d, name) || findKey(d, name + '.exe');
+    if (k && /\.exe$/i.test(k) && d.children[k].type === 'file') {
+      if (k.toLowerCase() === 'gcc.exe') { cmdGcc(args); return; }
+      const o = d.children[k].output || '';
+      print(o.replace(/\n$/, ''), 'o');
+      if (/^hello\.exe$/i.test(k)) done('run');
+      return;
+    }
+    if (k && /\.c$/i.test(k)) { print(NOT_RECOGNIZED(tokens[0]), 'e'); print('Hint: you can\'t run a .c file directly. Compile it first with gcc!', 'h'); return; }
+    print(NOT_RECOGNIZED(tokens[0]), 'e');
+  }
+
+  function reset() {
+    fs = freshFS(); cwd = ['Users', 'Student'];
+    out.textContent = '';
+    print('Microsoft Windows [Practice Version]\nType  help  to see what you can do.\n');
+    Object.values(missions).forEach(li => li.classList.remove('done'));
+    setPrompt();
+  }
+
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const v = input.value;
+      print(pathStr(cwd) + '>' + v);
+      if (v.trim()) { history.push(v); }
+      hIdx = history.length;
+      input.value = '';
+      run(v);
+      setPrompt(); scroll();
+    } else if (e.key === 'ArrowUp') {
+      if (hIdx > 0) { hIdx--; input.value = history[hIdx]; }
+      e.preventDefault();
+    } else if (e.key === 'ArrowDown') {
+      if (hIdx < history.length - 1) { hIdx++; input.value = history[hIdx]; } else { hIdx = history.length; input.value = ''; }
+      e.preventDefault();
+    } else if (e.key === 'Tab') {
+      e.preventDefault();
+      const m = input.value.match(/^(.*?)([^\s\\"]*)$/);
+      if (!m || !m[2]) return;
+      const d = nodeAt(cwd);
+      const hit = Object.keys(d.children).find(k => k.toLowerCase().startsWith(m[2].toLowerCase()));
+      if (hit) input.value = m[1] + hit;
+    } else if (e.key === 'l' && e.ctrlKey) {
+      e.preventDefault(); out.textContent = '';
+    }
+  });
+  screen.addEventListener('click', () => { if (!window.getSelection().toString()) input.focus({ preventScroll: true }); });
+  document.getElementById('simReset').addEventListener('click', reset);
+  reset();
+})();
+</script>
+</body>
+</html>

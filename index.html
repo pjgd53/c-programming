@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C Programming Lessons</title>
+<style>
+  :root {
+    --bg1: #eef2ff; --bg2: #f8fafc; --card: #ffffff;
+    --card-border: rgba(15,23,42,0.06); --ink: #1e293b; --muted: #64748b;
+    --accent: #6366f1; --shadow: rgba(15,23,42,0.15);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg1: #1e1b4b; --bg2: #0f172a; --card: #1a2036;
+      --card-border: rgba(255,255,255,0.08); --ink: #e7ecff; --muted: #94a3b8;
+      --accent: #818cf8; --shadow: rgba(0,0,0,0.5);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg1: #1e1b4b; --bg2: #0f172a; --card: #1a2036;
+    --card-border: rgba(255,255,255,0.08); --ink: #e7ecff; --muted: #94a3b8;
+    --accent: #818cf8; --shadow: rgba(0,0,0,0.5);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { height: 100%; }
+  body { margin: 0; overscroll-behavior: none; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(180deg, var(--bg1), var(--bg2));
+    min-height: 100dvh;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 48px 16px; color: var(--ink);
+    transition: background 0.2s, color 0.2s;
+  }
+  .theme-toggle {
+    position: fixed; top: 14px; right: 14px; width: 42px; height: 42px;
+    border-radius: 50%; background: var(--card); border: 1px solid var(--card-border);
+    box-shadow: 0 4px 14px var(--shadow); font-size: 19px; display: flex;
+    align-items: center; justify-content: center; cursor: pointer; z-index: 20; padding: 0;
+  }
+  .theme-toggle:active { transform: scale(0.92); }
+  .eyebrow { margin: 0 0 4px; color: var(--accent); font-weight: 700; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; text-align: center; }
+  h1 { font-size: clamp(24px, 6vw, 32px); margin: 0 0 8px; text-align: center; }
+  p.sub { color: var(--muted); margin: 0 0 6px; text-align: center; max-width: 500px; line-height: 1.5; }
+  .term-hero {
+    width: 100%; max-width: 560px; margin: 22px 0 6px; background: #0c0c0c; color: #cccccc;
+    border-radius: 12px; overflow: hidden; box-shadow: 0 12px 30px var(--shadow);
+    font: 13.5px/1.6 Consolas, "Cascadia Mono", Menlo, monospace;
+  }
+  .term-hero .bar { background: #1f1f1f; color: #aaa; font: 12px "Segoe UI", sans-serif; padding: 7px 12px; }
+  .term-hero pre { margin: 0; padding: 12px 14px; white-space: pre-wrap; word-break: break-word; }
+  .term-hero .ok { color: #7ee787; }
+  .list { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 560px; margin-top: 20px; }
+  a.lesson-card {
+    display: flex; align-items: center; gap: 16px;
+    background: var(--card); border: 1px solid var(--card-border); border-radius: 16px;
+    padding: 18px 20px; text-decoration: none; color: var(--ink);
+    box-shadow: 0 8px 24px var(--shadow); transition: transform 0.15s ease;
+  }
+  a.lesson-card:hover { transform: translateY(-2px); }
+  a.lesson-card.soon { opacity: 0.7; pointer-events: none; }
+  .lesson-num {
+    flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%;
+    background: var(--bg1); color: var(--accent); font-weight: 800; font-size: 17px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .lesson-info h2 { margin: 0 0 3px; font-size: 15.5px; }
+  .lesson-info p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
+  .lesson-arrow { margin-left: auto; color: var(--accent); font-weight: 700; font-size: 17px; }
+  .badge { margin-left: auto; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: var(--bg1); color: var(--muted); white-space: nowrap; }
+  footer { margin-top: 40px; color: var(--muted); font-size: 12.5px; text-align: center; }
+</style>
+</head>
+<body>
+<button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark mode">🌙</button>
+
+<p class="eyebrow">The Yellow Woods Academy</p>
+<h1>💻 C Programming Lessons</h1>
+<p class="sub">Set up your computer, learn the Command Prompt, and write real programs in C.</p>
+
+<div class="term-hero" aria-hidden="true">
+  <div class="bar">Command Prompt</div>
+  <pre>C:\cprog&gt; gcc hello.c -o hello
+C:\cprog&gt; hello
+<span class="ok">Hello, World!</span>
+C:\cprog&gt; _</pre>
+</div>
+
+<div class="list">
+  <a class="lesson-card" href="lesson-1-installing-c.html">
+    <div class="lesson-num">1</div>
+    <div class="lesson-info">
+      <h2>Setting Up C on Your Computer</h2>
+      <p>Install the MinGW-w64 GCC compiler, add it to PATH, and install Sublime Text.</p>
+    </div>
+    <div class="lesson-arrow">→</div>
+  </a>
+  <a class="lesson-card" href="lesson-2-command-prompt.html">
+    <div class="lesson-num">2</div>
+    <div class="lesson-info">
+      <h2>Command Prompt Basics</h2>
+      <p>dir, cd, mkdir, cls — then compile and run your program with gcc. Includes a practice terminal!</p>
+    </div>
+    <div class="lesson-arrow">→</div>
+  </a>
+  <a class="lesson-card soon" href="#" aria-disabled="true">
+    <div class="lesson-num">3</div>
+    <div class="lesson-info">
+      <h2>Your First C Program, Line by Line</h2>
+      <p>#include, main(), printf, and comments.</p>
+    </div>
+    <span class="badge">Coming soon</span>
+  </a>
+</div>
+
+<footer>The Yellow Woods Academy · C Programming</footer>
+
+<script>
+(function () {
+  const KEY = 'cProgLessonsTheme';
+  const root = document.documentElement;
+  const btn = document.getElementById('themeToggle');
+  function eff() {
+    const x = root.getAttribute('data-theme');
+    if (x) return x;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  function icon() {
+    const d = eff() === 'dark';
+    btn.textContent = d ? '☀️' : '🌙';
+    btn.setAttribute('aria-label', d ? 'Switch to light mode' : 'Switch to dark mode');
+  }
+  let saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  if (saved === 'light' || saved === 'dark') root.setAttribute('data-theme', saved);
+  icon();
+  btn.addEventListener('click', () => {
+    const t = eff() === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', t); icon();
+    try { localStorage.setItem(KEY, t); } catch (e) {}
+  });
+})();
+</script>
+</body>
+</html>
