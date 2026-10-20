@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 3: Basic Structure of C</title>
+<style>
+  :root {
+    --bg1: #eef2ff; --bg2: #f8fafc; --card: #ffffff;
+    --card-border: rgba(15,23,42,0.06); --ink: #1e293b; --muted: #64748b;
+    --accent: #6366f1; --accent-ink: #ffffff;
+    --tip-bg: #fef9c3; --tip-border: #eab308; --tip-ink: #713f12;
+    --warn-bg: #fee2e2; --warn-border: #ef4444; --warn-ink: #7f1d1d;
+    --recap-bg: #ecfdf5; --recap-border: #10b981;
+    --shadow: rgba(15,23,42,0.15); --btn-secondary-bg: #e2e8f0; --btn-secondary-ink: #1e293b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg1: #1e1b4b; --bg2: #0f172a; --card: #1a2036;
+      --card-border: rgba(255,255,255,0.08); --ink: #e7ecff; --muted: #94a3b8;
+      --accent: #818cf8; --accent-ink: #0f172a;
+      --tip-bg: #3f3311; --tip-border: #eab308; --tip-ink: #fef08a;
+      --warn-bg: #3b1212; --warn-border: #f87171; --warn-ink: #fecaca;
+      --recap-bg: #082f22; --recap-border: #34d399;
+      --shadow: rgba(0,0,0,0.5); --btn-secondary-bg: #2a3252; --btn-secondary-ink: #e7ecff;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg1: #1e1b4b; --bg2: #0f172a; --card: #1a2036;
+    --card-border: rgba(255,255,255,0.08); --ink: #e7ecff; --muted: #94a3b8;
+    --accent: #818cf8; --accent-ink: #0f172a;
+    --tip-bg: #3f3311; --tip-border: #eab308; --tip-ink: #fef08a;
+    --warn-bg: #3b1212; --warn-border: #f87171; --warn-ink: #fecaca;
+    --recap-bg: #082f22; --recap-border: #34d399;
+    --shadow: rgba(0,0,0,0.5); --btn-secondary-bg: #2a3252; --btn-secondary-ink: #e7ecff;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { height: 100%; }
+  body { margin: 0; overscroll-behavior: none; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(180deg, var(--bg1), var(--bg2));
+    min-height: 100dvh; display: flex; justify-content: center;
+    padding: 16px; color: var(--ink); transition: background 0.2s, color 0.2s;
+  }
+  .theme-toggle {
+    position: fixed; top: 14px; right: 14px; width: 42px; height: 42px;
+    border-radius: 50%; background: var(--card); border: 1px solid var(--card-border);
+    box-shadow: 0 4px 14px var(--shadow); font-size: 19px; display: flex;
+    align-items: center; justify-content: center; cursor: pointer; z-index: 20; padding: 0;
+  }
+  .theme-toggle:active { transform: scale(0.92); }
+  .wrap { width: 100%; max-width: 760px; padding-top: 8px; }
+  .card { background: var(--card); border: 1px solid var(--card-border); border-radius: 20px; padding: 26px 24px; box-shadow: 0 20px 60px var(--shadow); }
+  .lesson-nav-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 13.5px; padding-right: 48px; }
+  .lesson-nav-top a { color: var(--accent); text-decoration: none; font-weight: 600; }
+  .lesson-badge { background: var(--bg1); color: var(--accent); font-weight: 700; font-size: 11.5px; padding: 4px 10px; border-radius: 999px; }
+  h1 { font-size: clamp(22px, 5vw, 28px); margin: 0 0 4px; }
+  .subtitle { color: var(--muted); font-size: 14.5px; margin-bottom: 18px; line-height: 1.5; }
+  h2.section-title { font-size: 18px; margin: 32px 0 10px; padding-top: 18px; border-top: 1px solid var(--card-border); }
+  h3 { font-size: 15.5px; margin: 20px 0 6px; }
+  p { line-height: 1.65; font-size: 15px; }
+  a { color: var(--accent); }
+  .steps { padding-left: 22px; margin: 10px 0; }
+  .steps li { line-height: 1.65; font-size: 15px; margin-bottom: 8px; }
+  .tip, .warn { border-left: 4px solid; border-radius: 8px; padding: 12px 14px; font-size: 14px; line-height: 1.55; margin: 16px 0; }
+  .tip { background: var(--tip-bg); border-color: var(--tip-border); color: var(--tip-ink); }
+  .warn { background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn-ink); }
+  .tip b.t, .warn b.t { display: block; margin-bottom: 3px; }
+  .recap { background: var(--recap-bg); border: 1px solid var(--recap-border); border-radius: 14px; padding: 16px 18px; margin-top: 30px; }
+  .recap h2 { margin: 0 0 10px; font-size: 16px; }
+  .recap ul { margin: 0; padding-left: 20px; font-size: 14.5px; line-height: 1.75; }
+  .lesson-nav-bottom { display: flex; gap: 10px; margin-top: 24px; }
+  .nav-btn { flex: 1; text-align: center; padding: 13px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 14.5px; background: var(--btn-secondary-bg); color: var(--btn-secondary-ink); }
+  .nav-btn.primary { background: var(--accent); color: var(--accent-ink); }
+  .toc { background: var(--bg1); border-radius: 12px; padding: 12px 16px; font-size: 14px; }
+  .toc ol { margin: 6px 0 0; padding-left: 20px; line-height: 1.8; }
+  .toc a { text-decoration: none; font-weight: 600; }
+  code, .kbd { font-family: Consolas, "Cascadia Mono", Menlo, monospace; }
+  code { background: var(--bg1); padding: 1px 6px; border-radius: 5px; font-size: 13.5px; word-break: break-word; }
+  .kbd { display: inline-block; padding: 1px 7px; border-radius: 5px; border: 1px solid var(--card-border); border-bottom-width: 3px; background: var(--bg1); font-weight: 700; font-size: 12.5px; color: var(--ink); white-space: nowrap; }
+
+  /* flow diagram */
+  .flow { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 16px 0; }
+  .flow .box { background: var(--bg1); border-radius: 12px; padding: 12px 14px; text-align: center; min-width: 120px; font-size: 13px; color: var(--muted); }
+  .flow .box b { display: block; color: var(--ink); font-size: 15px; font-family: Consolas, Menlo, monospace; margin-bottom: 2px; }
+  .flow .arrow { color: var(--accent); font-weight: 800; font-size: 20px; }
+
+  /* code + terminal blocks */
+  .codeblock { position: relative; margin: 12px 0; border-radius: 10px; overflow: hidden; box-shadow: 0 8px 22px var(--shadow); }
+  .codeblock .bar { background: #1f1f1f; color: #aaa; font: 12px "Segoe UI", sans-serif; padding: 7px 12px; display: flex; justify-content: space-between; align-items: center; }
+  .codeblock pre { margin: 0; background: #0c0c0c; color: #d4d4d4; padding: 12px 14px; font: 13.5px/1.6 Consolas, "Cascadia Mono", Menlo, monospace; overflow-x: auto; }
+  .copy-btn { background: #333; color: #ddd; border: 0; border-radius: 6px; font-size: 11.5px; padding: 3px 9px; cursor: pointer; }
+  .copy-btn:active { transform: scale(0.95); }
+  .c-kw { color: #c586c0; } .c-str { color: #ce9178; } .c-pp { color: #9cdcfe; } .c-com { color: #6a9955; } .c-fn { color: #dcdcaa; }
+  .t-out { color: #7ee787; } .t-err { color: #ff7b72; }
+
+  /* windows dialog mockups */
+  .dlg { border-radius: 8px; overflow: hidden; border: 1px solid rgba(0,0,0,0.15); box-shadow: 0 10px 30px var(--shadow); margin: 14px 0; background: #fff; color: #222; max-width: 440px; font: 12.5px "Segoe UI", sans-serif; }
+  .dlg-title { background: #f3f3f3; padding: 8px 12px; border-bottom: 1px solid #ddd; font-weight: 600; display: flex; justify-content: space-between; }
+  .dlg-body { padding: 12px; }
+  .dlg-label { font-weight: 600; margin: 6px 0 4px; }
+  .dlg-list { border: 1px solid #bbb; background: #fff; }
+  .dlg-list div { padding: 4px 8px; display: flex; gap: 14px; font-family: Consolas, monospace; font-size: 12px; }
+  .dlg-list div span:first-child { min-width: 80px; font-family: "Segoe UI", sans-serif; }
+  .dlg-list div.hl { background: #cce4f7; outline: 1px solid #0078d4; }
+  .dlg-list div.new { background: #e8f5e9; font-weight: 700; }
+  .dlg-btns { display: flex; gap: 6px; justify-content: flex-end; margin-top: 10px; flex-wrap: wrap; }
+  .dlg-btn { padding: 4px 14px; border: 1px solid #adadad; background: #e1e1e1; border-radius: 3px; }
+  .dlg-btn.hl { border-color: #0078d4; background: #cce4f7; box-shadow: 0 0 0 2px rgba(0,120,212,0.3); }
+  .dlg-side { display: flex; gap: 10px; }
+  .dlg-side .dlg-list { flex: 1; }
+  .dlg-side .col { display: flex; flex-direction: column; gap: 5px; }
+  .caption { font-size: 12.5px; color: var(--muted); text-align: center; margin-top: -4px; margin-bottom: 14px; }
+
+  .folder-tree { font: 13.5px/1.7 Consolas, Menlo, monospace; background: var(--bg1); border-radius: 10px; padding: 12px 16px; white-space: pre; overflow-x: auto; }
+  .folder-tree b { color: var(--accent); }
+
+  .editor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin: 12px 0; }
+  .editor-grid > div { background: var(--bg1); border-radius: 12px; padding: 12px 14px; font-size: 13.5px; line-height: 1.5; }
+  .editor-grid b { display: block; font-size: 14.5px; margin-bottom: 3px; }
+  .checklist { list-style: none; padding: 0; margin: 10px 0; }
+  .checklist li { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border-radius: 10px; font-size: 14.5px; line-height: 1.5; cursor: pointer; }
+  .checklist li:hover { background: var(--bg1); }
+  .checklist input { margin-top: 4px; width: 17px; height: 17px; accent-color: var(--accent); flex-shrink: 0; }
+
+  @media (max-width: 420px) { .card { padding: 18px 14px; } .dlg-side { flex-direction: column; } .dlg-side .col { flex-direction: row; flex-wrap: wrap; } }
+  /* lesson 3 extras */
+  :root { --s1: #16a34a; --s2: #2563eb; --s3: #9333ea; --s4: #ca8a04; --s5: #ea580c; --s6: #0d9488; }
+  .stack { display: flex; flex-direction: column; gap: 6px; max-width: 420px; margin: 16px auto; }
+  .stack .blk { border-radius: 10px; padding: 10px 14px; font-weight: 700; font-size: 14.5px; color: #fff; display: flex; gap: 10px; align-items: center; }
+  .stack .blk .n { width: 24px; height: 24px; border-radius: 50%; background: rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+  .stack .blk small { font-weight: 500; opacity: 0.9; margin-left: auto; font-size: 12px; text-align: right; }
+  .stack .inner { margin: 4px 0 2px 34px; display: flex; flex-direction: column; gap: 4px; }
+  .stack .inner div { background: rgba(255,255,255,0.18); border-radius: 7px; padding: 5px 10px; font-size: 13px; font-weight: 600; }
+  .b1 { background: var(--s1); } .b2 { background: var(--s2); } .b3 { background: var(--s3); } .b4 { background: var(--s4); } .b5 { background: var(--s5); flex-direction: column; align-items: stretch !important; } .b6 { background: var(--s6); }
+  .b5 .row { display: flex; gap: 10px; align-items: center; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+  .chip { border: 2px solid; background: transparent; color: var(--ink); border-radius: 999px; padding: 5px 11px; font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .chip.on { color: #fff; }
+  .chip[data-s="1"] { border-color: var(--s1); } .chip[data-s="1"].on { background: var(--s1); }
+  .chip[data-s="2"] { border-color: var(--s2); } .chip[data-s="2"].on { background: var(--s2); }
+  .chip[data-s="3"] { border-color: var(--s3); } .chip[data-s="3"].on { background: var(--s3); }
+  .chip[data-s="4"] { border-color: var(--s4); } .chip[data-s="4"].on { background: var(--s4); }
+  .chip[data-s="5"] { border-color: var(--s5); } .chip[data-s="5"].on { background: var(--s5); }
+  .chip[data-s="6"] { border-color: var(--s6); } .chip[data-s="6"].on { background: var(--s6); }
+  .chip[data-s="all"] { border-color: var(--muted); } .chip[data-s="all"].on { background: var(--muted); }
+
+  .prog { background: #0c0c0c; border-radius: 10px; overflow: hidden; box-shadow: 0 8px 22px var(--shadow); margin: 8px 0 14px; }
+  .prog .bar { background: #1f1f1f; color: #aaa; font: 12px "Segoe UI", sans-serif; padding: 7px 12px; display: flex; justify-content: space-between; align-items: center; }
+  .prog-body { padding: 8px 0; overflow-x: auto; }
+  .ln { display: flex; align-items: stretch; font: 13.5px/1.65 Consolas, "Cascadia Mono", Menlo, monospace; color: #d4d4d4; transition: opacity 0.2s; white-space: pre; border-left: 5px solid transparent; }
+  .ln .num { width: 34px; flex-shrink: 0; text-align: right; padding-right: 12px; color: #666; user-select: none; }
+  .ln .tag { margin-left: auto; padding: 0 10px 0 18px; font: 600 11px/1.9 "Segoe UI", sans-serif; opacity: 0.85; user-select: none; }
+  .ln .code { padding-right: 8px; }
+  .ln.dim { opacity: 0.22; }
+  .ln[data-s="1"] { border-color: var(--s1); } .ln[data-s="1"] .tag { color: #4ade80; }
+  .ln[data-s="2"] { border-color: var(--s2); } .ln[data-s="2"] .tag { color: #60a5fa; }
+  .ln[data-s="3"] { border-color: var(--s3); } .ln[data-s="3"] .tag { color: #c084fc; }
+  .ln[data-s="4"] { border-color: var(--s4); } .ln[data-s="4"] .tag { color: #facc15; }
+  .ln[data-s="5"] { border-color: var(--s5); } .ln[data-s="5"] .tag { color: #fb923c; }
+  .ln[data-s="6"] { border-color: var(--s6); } .ln[data-s="6"] .tag { color: #2dd4bf; }
+  .ln[data-s="0"] { border-color: transparent; }
+
+  .sec-card { border-left: 6px solid; background: var(--bg1); border-radius: 12px; padding: 14px 16px; margin: 14px 0; }
+  .sec-card h3 { margin: 0 0 6px; font-size: 16px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .sec-card p { margin: 6px 0; font-size: 14.5px; }
+  .sec-card .need { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--card); color: var(--muted); }
+  .sec-card .codeblock { margin: 8px 0 4px; box-shadow: none; }
+  .sec-card[data-s="1"] { border-color: var(--s1); } .sec-card[data-s="2"] { border-color: var(--s2); } .sec-card[data-s="3"] { border-color: var(--s3); }
+  .sec-card[data-s="4"] { border-color: var(--s4); } .sec-card[data-s="5"] { border-color: var(--s5); } .sec-card[data-s="6"] { border-color: var(--s6); }
+  .sec-card .show-btn { background: none; border: 0; color: var(--accent); font: 600 13px inherit; cursor: pointer; padding: 0; font-family: inherit; }
+
+  .rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin: 12px 0; }
+  .rules > div { background: var(--bg1); border-radius: 12px; padding: 12px 14px; font-size: 14px; line-height: 1.55; }
+  .rules b.r { display: block; font-size: 14.5px; margin-bottom: 4px; }
+
+  .quiz { background: var(--bg1); border-radius: 14px; padding: 16px; margin: 14px 0; }
+  .quiz .q-top { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); font-weight: 600; margin-bottom: 10px; }
+  .quiz .q-line { background: #0c0c0c; color: #e5e5e5; font: 15px Consolas, Menlo, monospace; padding: 14px; border-radius: 10px; white-space: pre-wrap; word-break: break-word; }
+  .quiz .q-ctx { font-size: 13px; color: var(--muted); margin: 6px 0 12px; min-height: 1em; }
+  .quiz .opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+  .quiz .opt { border: 2px solid var(--card-border); background: var(--card); color: var(--ink); border-radius: 10px; padding: 10px; font: 600 13.5px inherit; font-family: inherit; cursor: pointer; text-align: left; border-left-width: 6px; }
+  .quiz .opt:disabled { cursor: default; }
+  .quiz .opt.right { background: #dcfce7; color: #14532d; border-color: #16a34a; }
+  .quiz .opt.wrong { background: #fee2e2; color: #7f1d1d; border-color: #dc2626; }
+  .quiz .fb { margin-top: 12px; font-size: 14px; line-height: 1.55; min-height: 1.2em; }
+  .quiz .next { margin-top: 10px; background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 10px; padding: 10px 18px; font: 700 14px inherit; font-family: inherit; cursor: pointer; display: none; }
+  .quiz .result { text-align: center; padding: 10px 0; }
+  .quiz .result .big { font-size: 34px; font-weight: 800; color: var(--accent); }
+</style>
+</head>
+<body>
+<button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark mode">🌙</button>
+<div class="wrap">
+  <div class="card">
+    <div class="lesson-nav-top">
+      <a href="index.html">← All Lessons</a>
+      <span class="lesson-badge">Lesson 3</span>
+    </div>
+
+    <h1>🧱 Basic Structure of a C Program</h1>
+    <div class="subtitle">A letter has a heading, greeting, body, and closing, always in that order. A C program also has <b>parts</b> (called <b>sections</b>) that must follow a set order. Let's learn what each part does.</div>
+
+    <div class="toc">
+      <b>In this lesson</b>
+      <ol>
+        <li><a href="#overview">The six sections</a></li>
+        <li><a href="#example">See them in a real program</a></li>
+        <li><a href="#sections">Each section explained</a></li>
+        <li><a href="#rules">Rules to remember</a></li>
+        <li><a href="#quiz">Quiz: Which section is it?</a></li>
+      </ol>
+    </div>
+
+    <!-- 1 -->
+    <h2 class="section-title" id="overview">1. The six sections</h2>
+    <p>Every C program follows this basic structure, from top to bottom. A program doesn't need to use <b>all</b> six sections, but the ones it uses must stay <b>in this order</b>.</p>
+
+    <div class="stack" aria-label="Six sections of a C program in order">
+      <div class="blk b1"><span class="n">1</span>Documentation Section<small>comments</small></div>
+      <div class="blk b2"><span class="n">2</span>Link Section<small>#include</small></div>
+      <div class="blk b3"><span class="n">3</span>Definition Section<small>#define</small></div>
+      <div class="blk b4"><span class="n">4</span>Global Declaration Section<small>before main()</small></div>
+      <div class="blk b5">
+        <div class="row"><span class="n">5</span>Main Function Section<small>int main() { }</small></div>
+        <div class="inner"><div>Declaration part</div><div>Executable part</div></div>
+      </div>
+      <div class="blk b6"><span class="n">6</span>Subprogram (Function) Section<small>after main()</small></div>
+    </div>
+    <div class="tip">
+      <b class="t">💡 Memory trick</b>
+      <b>D</b>on't <b>L</b>et <b>D</b>ogs <b>G</b>et <b>M</b>y <b>S</b>andwich: <b>D</b>ocumentation, <b>L</b>ink, <b>D</b>efinition, <b>G</b>lobal, <b>M</b>ain, <b>S</b>ubprogram.
+    </div>
+
+    <!-- 2 -->
+    <h2 class="section-title" id="example">2. See them in a real program</h2>
+    <p>This program uses <b>all six sections</b>. It finds the area of a circle. Tap a section below to highlight its lines.</p>
+
+    <div class="chips" id="chips">
+      <button class="chip on" data-s="all" type="button">Show all</button>
+      <button class="chip" data-s="1" type="button">1 Documentation</button>
+      <button class="chip" data-s="2" type="button">2 Link</button>
+      <button class="chip" data-s="3" type="button">3 Definition</button>
+      <button class="chip" data-s="4" type="button">4 Global</button>
+      <button class="chip" data-s="5" type="button">5 Main</button>
+      <button class="chip" data-s="6" type="button">6 Subprogram</button>
+    </div>
+    <div class="prog">
+      <div class="bar"><span>circle.c</span><button class="copy-btn" id="copyProg" type="button">Copy code</button></div>
+      <div class="prog-body" id="progBody"></div>
+    </div>
+    <div class="codeblock">
+      <div class="bar"><span>Output</span></div>
+      <pre>C:\cprog&gt; gcc circle.c -o circle
+C:\cprog&gt; circle
+<span class="t-out">Area of the circle = 78.54
+The function was used 1 time(s).</span></pre>
+    </div>
+    <div class="tip">
+      <b class="t">💡 Remember hello.c?</b>
+      Your program from Lesson 1 only had two sections: the <b>Link</b> section (<code>#include &lt;stdio.h&gt;</code>) and the <b>Main</b> section. That's fine! Small programs don't need every section.
+    </div>
+
+    <!-- 3 -->
+    <h2 class="section-title" id="sections">3. Each section explained</h2>
+
+    <div class="sec-card" data-s="1">
+      <h3>1️⃣ Documentation Section <span class="need">Optional, but a good habit</span></h3>
+      <p>This section comes <b>first</b>. It holds <b>comments</b>: notes for people to read, such as what the program does, who wrote it, and when. The compiler <b>ignores</b> comments completely.</p>
+      <p>A comment can span many lines between <code>/*</code> and <code>*/</code>, or take up one line starting with <code>//</code>.</p>
+      <div class="codeblock"><div class="bar"><span>Example</span></div><pre><span class="c-com">/* Program: Area of a Circle
+   Author:  Juan Dela Cruz
+   Date:    October 2026 */</span>
+
+<span class="c-com">// This is a one-line comment</span></pre></div>
+      <button class="show-btn" data-s="1" type="button">👀 Show in program</button>
+    </div>
+
+    <div class="sec-card" data-s="2">
+      <h3>2️⃣ Link Section <span class="need">Almost always needed</span></h3>
+      <p>This section tells the compiler to <b>link</b> (connect) your program to <b>header files</b>. These are ready-made toolboxes of functions. Without <code>stdio.h</code>, your program won't know what <code>printf</code> means!</p>
+      <div class="codeblock"><div class="bar"><span>Example</span></div><pre><span class="c-pp">#include</span> <span class="c-str">&lt;stdio.h&gt;</span>   <span class="c-com">// standard input/output: printf, scanf</span>
+<span class="c-pp">#include</span> <span class="c-str">&lt;math.h&gt;</span>    <span class="c-com">// math functions: sqrt, pow</span></pre></div>
+      <button class="show-btn" data-s="2" type="button">👀 Show in program</button>
+    </div>
+
+    <div class="sec-card" data-s="3">
+      <h3>3️⃣ Definition Section <span class="need">Optional</span></h3>
+      <p>This section defines <b>constants</b>: names for values that never change. <code>#define</code> tells the compiler: "Every time you see this name, replace it with this value."</p>
+      <div class="codeblock"><div class="bar"><span>Example</span></div><pre><span class="c-pp">#define</span> MAX 25         <span class="c-com">// every MAX becomes 25</span>
+<span class="c-pp">#define</span> PI  3.14159    <span class="c-com">// every PI becomes 3.14159</span></pre></div>
+      <p>⚠️ No <code>=</code> sign and <b>no semicolon</b> at the end of a <code>#define</code> line!</p>
+      <button class="show-btn" data-s="3" type="button">👀 Show in program</button>
+    </div>
+
+    <div class="sec-card" data-s="4">
+      <h3>4️⃣ Global Declaration Section <span class="need">Optional</span></h3>
+      <p>Variables declared here, <b>before main()</b>, are <b>global</b>. That means <b>every part</b> of the program can use them: main() and all the other functions. Function <b>prototypes</b> (an announcement of a function that is written later) also go here.</p>
+      <div class="codeblock"><div class="bar"><span>Example</span></div><pre><span class="c-kw">int</span> timesUsed = 0;           <span class="c-com">// a global variable</span>
+<span class="c-kw">float</span> <span class="c-fn">circleArea</span>(<span class="c-kw">float</span> r);  <span class="c-com">// a function prototype</span></pre></div>
+      <button class="show-btn" data-s="4" type="button">👀 Show in program</button>
+    </div>
+
+    <div class="sec-card" data-s="5">
+      <h3>5️⃣ Main Function Section <span class="need">Required in every program!</span></h3>
+      <p><code>main()</code> is where the program <b>starts running</b>. Every C program must have exactly <b>one</b> main function. Its code goes inside curly braces <code>{ }</code>, in two parts:</p>
+      <ul class="steps">
+        <li><b>Declaration part</b>: at the top, declare the variables you'll use and their data types (like <code>int</code> or <code>float</code>).</li>
+        <li><b>Executable part</b>: the statements that actually <b>do the work</b>, such as calculating and printing.</li>
+      </ul>
+      <div class="codeblock"><div class="bar"><span>Example</span></div><pre><span class="c-kw">int</span> <span class="c-fn">main</span>() {
+    <span class="c-kw">float</span> radius, area;            <span class="c-com">// declaration part</span>
+
+    radius = 5.0;                   <span class="c-com">// executable part</span>
+    <span class="c-fn">printf</span>(<span class="c-str">"Radius: %.1f\n"</span>, radius);
+    <span class="c-kw">return</span> 0;                       <span class="c-com">// 0 means "finished OK"</span>
+}</pre></div>
+      <h3 id="void-vs-int">🤔 void main() or int main()?</h3>
+      <p>You may see <code>void main()</code> or just <code>main()</code> in older books and handouts. Here's the difference:</p>
+      <div class="editor-grid">
+        <div style="background:var(--card);border:2px solid var(--recap-border)"><b>✅ int main()</b>
+          <code>int</code> means main <strong>gives back a number</strong> when it ends: <code>return 0;</code> tells Windows "I finished successfully." This is the <strong>official C standard</strong> and works with every compiler. <strong>Use this one!</strong></div>
+        <div style="background:var(--card);border:2px solid var(--warn-border)"><b>⚠️ void main()</b>
+          <code>void</code> means "returns nothing," so the program never reports whether it worked. It's <strong>not standard C</strong>. Old compilers like Turbo C allowed it, but in C++ it's an error.</div>
+      </div>
+      <p>With <code>-Wall</code>, gcc warns you if you use <code>void main()</code>:</p>
+      <div class="codeblock"><div class="bar"><span>Command Prompt</span></div><pre>C:\cprog&gt; gcc -Wall hello.c -o hello
+<span class="t-err">hello.c:2:6: warning: return type of 'main' is not 'int' [-Wmain]</span></pre></div>
+      <div class="tip" style="margin-bottom:6px">
+        <b class="t">📘 Remember</b>
+        Your program's output looks the same either way. But good programmers build good habits, so always write <code>int main()</code> and end it with <code>return 0;</code>. A plain <code>main()</code> with nothing in front is the oldest style and also gets a warning today.
+      </div>
+      <button class="show-btn" data-s="5" type="button">👀 Show in program</button>
+    </div>
+
+    <div class="sec-card" data-s="6">
+      <h3>6️⃣ Subprogram (Function) Section <span class="need">Optional</span></h3>
+      <p>Here you write your own <b>functions</b>: smaller programs that do one job and that main() can <b>call</b> (use) whenever it needs to. Breaking a big program into functions makes it easier to read, test, and fix.</p>
+      <div class="codeblock"><div class="bar"><span>Example</span></div><pre><span class="c-kw">float</span> <span class="c-fn">circleArea</span>(<span class="c-kw">float</span> r) {
+    <span class="c-kw">return</span> PI * r * r;
+}</pre></div>
+      <button class="show-btn" data-s="6" type="button">👀 Show in program</button>
+    </div>
+
+    <!-- 4 -->
+    <h2 class="section-title" id="rules">4. Rules to remember</h2>
+    <div class="rules">
+      <div><b class="r">⬇️ Order matters</b>The sections go top to bottom in the order 1 → 6. For example, you can't put <code>#include</code> after main().</div>
+      <div><b class="r">🔤 C is case-sensitive</b><code>main</code>, <code>Main</code>, and <code>MAIN</code> are three different words. Always type <code>main</code> and <code>printf</code> in lowercase.</div>
+      <div><b class="r">; Semicolons</b>Most statements end with <code>;</code>. Lines that start with <code>#</code> do <b>not</b>.</div>
+      <div><b class="r">{ } Braces come in pairs</b>Every <code>{</code> needs a matching <code>}</code>. Indent the code inside so it's easy to see.</div>
+    </div>
+
+    <!-- 5 -->
+    <h2 class="section-title" id="quiz">5. Quiz: Which section is it? 🎯</h2>
+    <p>Look at each line of code and pick the section it belongs to.</p>
+    <div class="quiz" id="quiz"></div>
+
+    <div class="tip">
+      <b class="t">Try It! On a real computer</b>
+      Type the <b>circle.c</b> program in Sublime Text and save it in <code>C:\cprog</code>. Compile it with <code>gcc circle.c -o circle</code> and run it with <code>circle</code>. Then:
+      <ol style="margin:6px 0 0; padding-left:20px; line-height:1.7">
+        <li>Change your name in the <b>Documentation</b> section.</li>
+        <li>Change <code>radius = 5.0;</code> to <code>radius = 10.0;</code>. Save, compile, and run again. What's the new area?</li>
+        <li>Label each section of your program with a <code>//</code> comment.</li>
+      </ol>
+    </div>
+
+    <div class="recap">
+      <h2>✅ What You Learned</h2>
+      <ul>
+        <li>A C program has 6 sections, always in this order: <b>Documentation → Link → Definition → Global Declaration → Main → Subprogram</b>.</li>
+        <li><b>Documentation</b> = comments (<code>/* */</code> or <code>//</code>), which the compiler ignores.</li>
+        <li><b>Link</b> = <code>#include</code> header files. <b>Definition</b> = <code>#define</code> constants.</li>
+        <li><b>Global</b> variables are declared before main() and can be used everywhere.</li>
+        <li><b>main()</b> is required. It has a <b>declaration part</b> and an <b>executable part</b>.</li>
+        <li>Write <b><code>int main()</code></b> with <code>return 0;</code>, not <code>void main()</code>.</li>
+        <li><b>Subprograms</b> are your own functions, written after main().</li>
+      </ul>
+    </div>
+
+    <div class="lesson-nav-bottom">
+      <a class="nav-btn" href="lesson-2-command-prompt.html">← Lesson 2</a>
+      <a class="nav-btn primary" href="index.html">All Lessons</a>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  /* ---------- theme ---------- */
+  const THEME_KEY = 'cProgLessonsTheme';
+  const root = document.documentElement;
+  const btn = document.getElementById('themeToggle');
+  function eff() {
+    const x = root.getAttribute('data-theme');
+    if (x) return x;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  function icon() {
+    const d = eff() === 'dark';
+    btn.textContent = d ? '☀️' : '🌙';
+    btn.setAttribute('aria-label', d ? 'Switch to light mode' : 'Switch to dark mode');
+  }
+  let saved = null;
+  try { saved = localStorage.getItem(THEME_KEY); } catch (e) {}
+  if (saved === 'light' || saved === 'dark') root.setAttribute('data-theme', saved);
+  icon();
+  btn.addEventListener('click', () => {
+    const t = eff() === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', t); icon();
+    try { localStorage.setItem(THEME_KEY, t); } catch (e) {}
+  });
+
+  function copyText(text, b) {
+    const done = () => { const o = b.textContent; b.textContent = 'Copied!'; setTimeout(() => b.textContent = o, 1200); };
+    const fb = () => { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch (e) {} ta.remove(); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fb); else fb();
+  }
+
+  /* ---------- color-coded program ---------- */
+  // [section, text, tag?, isComment?]
+  const NAMES = { 1: 'Documentation', 2: 'Link', 3: 'Definition', 4: 'Global Declaration', 5: 'Main Function', 6: 'Subprogram' };
+  const P = [
+    [1, '/* Program: Area of a Circle', 'Documentation', true],
+    [1, '   Author:  Juan Dela Cruz', '', true],
+    [1, '   Date:    October 2026 */', '', true],
+    [0, ''],
+    [2, '#include <stdio.h>', 'Link'],
+    [0, ''],
+    [3, '#define PI 3.14159', 'Definition'],
+    [0, ''],
+    [4, 'int timesUsed = 0;', 'Global Declaration'],
+    [4, 'float circleArea(float r);', ''],
+    [0, ''],
+    [5, 'int main() {', 'Main Function'],
+    [5, '    float radius, area;', '↳ declaration part'],
+    [5, ''],
+    [5, '    radius = 5.0;', '↳ executable part'],
+    [5, '    area = circleArea(radius);', ''],
+    [5, '    printf("Area of the circle = %.2f\\n", area);', ''],
+    [5, '    printf("The function was used %d time(s).\\n", timesUsed);', ''],
+    [5, '    return 0;', ''],
+    [5, '}', ''],
+    [0, ''],
+    [6, 'float circleArea(float r) {', 'Subprogram'],
+    [6, '    timesUsed = timesUsed + 1;', ''],
+    [6, '    return PI * r * r;', ''],
+    [6, '}', '']
+  ];
+  const TOKEN = /(\/\/.*$|"(?:[^"\\]|\\.)*"|#\w+|<[\w.]+>|\b(?:int|float|char|return|void)\b|\b(?:main|printf|circleArea)\b(?=\())/g;
+  function highlight(el, text, isComment) {
+    if (isComment) { const s = document.createElement('span'); s.className = 'c-com'; s.textContent = text; el.appendChild(s); return; }
+    let last = 0, m;
+    TOKEN.lastIndex = 0;
+    while ((m = TOKEN.exec(text))) {
+      if (m.index > last) el.appendChild(document.createTextNode(text.slice(last, m.index)));
+      const t = m[0], s = document.createElement('span');
+      s.className = t.startsWith('//') ? 'c-com' : t.startsWith('"') || t.startsWith('<') ? 'c-str' : t.startsWith('#') ? 'c-pp' : /^(int|float|char|return|void)$/.test(t) ? 'c-kw' : 'c-fn';
+      s.textContent = t; el.appendChild(s);
+      last = m.index + t.length;
+    }
+    if (last < text.length) el.appendChild(document.createTextNode(text.slice(last)));
+  }
+  const body = document.getElementById('progBody');
+  P.forEach((row, i) => {
+    const d = document.createElement('div');
+    d.className = 'ln'; d.dataset.s = row[0];
+    const n = document.createElement('span'); n.className = 'num'; n.textContent = i + 1;
+    const c = document.createElement('span'); c.className = 'code'; highlight(c, row[1] || ' ', row[3]);
+    const t = document.createElement('span'); t.className = 'tag'; t.textContent = row[2] || '';
+    d.append(n, c, t); body.appendChild(d);
+  });
+  document.getElementById('copyProg').addEventListener('click', e => copyText(P.map(r => r[1]).join('\n') + '\n', e.currentTarget));
+
+  const chips = document.querySelectorAll('.chip');
+  function show(s) {
+    chips.forEach(c => c.classList.toggle('on', c.dataset.s === String(s)));
+    body.querySelectorAll('.ln').forEach(l => l.classList.toggle('dim', s !== 'all' && l.dataset.s !== String(s)));
+  }
+  chips.forEach(c => c.addEventListener('click', () => show(c.classList.contains('on') && c.dataset.s !== 'all' ? 'all' : c.dataset.s)));
+  document.querySelectorAll('.show-btn').forEach(b => b.addEventListener('click', () => {
+    show(b.dataset.s);
+    document.getElementById('example').scrollIntoView({ behavior: 'smooth' });
+  }));
+
+  /* ---------- quiz ---------- */
+  const OPTS = [
+    ['1', 'Documentation', 'var(--s1)'], ['2', 'Link', 'var(--s2)'], ['3', 'Definition', 'var(--s3)'],
+    ['4', 'Global Declaration', 'var(--s4)'], ['5a', 'Main: Declaration part', 'var(--s5)'],
+    ['5b', 'Main: Executable part', 'var(--s5)'], ['6', 'Subprogram', 'var(--s6)']
+  ];
+  const Q = [
+    ['/* This program adds two numbers */', '', '1', 'Text between /* and */ is a comment, so it goes in the Documentation section.'],
+    ['#include <math.h>', '', '2', '#include links your program to a header file. That is the Link section.'],
+    ['#define MAX 25', '', '3', '#define creates a constant, so it belongs in the Definition section.'],
+    ['int score = 0;', 'This line is written ABOVE main().', '4', 'A variable declared before main() is global, so it is in the Global Declaration section.'],
+    ['int age;', 'This line is at the TOP, INSIDE main().', '5a', 'Declaring a variable inside main(), before the work begins, is the declaration part.'],
+    ['printf("Hello!\\n");', 'This line is INSIDE main().', '5b', 'printf does work (it prints), so it is in the executable part of main().'],
+    ['void greet() {\n    printf("Hi!\\n");\n}', 'This is written BELOW main().', '6', 'A function written after main() belongs in the Subprogram section.'],
+    ['// Author: Ana Reyes', '', '1', 'Lines starting with // are comments, so this is Documentation.'],
+    ['#define SCHOOL "TYWA"', '', '3', '#define gives a name to a value that does not change, so it is the Definition section.'],
+    ['#include <stdio.h>', '', '2', 'stdio.h is a header file, so this is the Link section.'],
+    ['sum = a + b;', 'This line is INSIDE main(), after the variables are declared.', '5b', 'Calculating is doing work, so it is the executable part.'],
+    ['float price, total;', 'This line is at the TOP, INSIDE main().', '5a', 'It declares variables and their data type (float), so it is the declaration part.']
+  ];
+  const quiz = document.getElementById('quiz');
+  let order, qi, score;
+  function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+  function start() { order = shuffle(Q.map((_, i) => i)); qi = 0; score = 0; render(); }
+  function render() {
+    quiz.innerHTML = '';
+    if (qi >= order.length) {
+      const pct = Math.round(score / order.length * 100);
+      quiz.innerHTML = `<div class="result"><div class="big">${score} / ${order.length}</div><p>${pct === 100 ? '🏆 Perfect! You know the structure of C!' : pct >= 75 ? '🎉 Great job!' : '💪 Good try! Review the sections and try again.'}</p><button class="next" style="display:inline-block" type="button">Try again</button></div>`;
+      quiz.querySelector('.next').addEventListener('click', start);
+      return;
+    }
+    const q = Q[order[qi]];
+    const top = document.createElement('div'); top.className = 'q-top';
+    top.innerHTML = `<span>Question ${qi + 1} of ${order.length}</span><span>Score: ${score}</span>`;
+    const line = document.createElement('div'); line.className = 'q-line'; line.textContent = q[0];
+    const ctx = document.createElement('div'); ctx.className = 'q-ctx'; ctx.textContent = q[1] ? '📍 ' + q[1] : '';
+    const opts = document.createElement('div'); opts.className = 'opts';
+    const fb = document.createElement('div'); fb.className = 'fb';
+    const next = document.createElement('button'); next.className = 'next'; next.type = 'button';
+    next.textContent = qi === order.length - 1 ? 'See my score' : 'Next →';
+    next.addEventListener('click', () => { qi++; render(); });
+    OPTS.forEach(([id, label, color]) => {
+      const b = document.createElement('button'); b.className = 'opt'; b.type = 'button';
+      b.textContent = label; b.style.borderLeftColor = color;
+      b.addEventListener('click', () => {
+        const ok = id === q[2];
+        if (ok) score++;
+        opts.querySelectorAll('.opt').forEach((o, k) => { o.disabled = true; if (OPTS[k][0] === q[2]) o.classList.add('right'); });
+        if (!ok) b.classList.add('wrong');
+        fb.innerHTML = (ok ? '<b>✅ Correct!</b> ' : '<b>❌ Not quite.</b> ') ;
+        fb.appendChild(document.createTextNode(q[3]));
+        next.style.display = 'inline-block';
+        top.lastElementChild.textContent = 'Score: ' + score;
+      });
+      opts.appendChild(b);
+    });
+    quiz.append(top, line, ctx, opts, fb, next);
+  }
+  start();
+})();
+</script>
+</body>
+</html>
