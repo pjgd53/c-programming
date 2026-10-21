@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 4: C Syntax</title>
+<style>
+  :root {
+    --bg1: #eef2ff; --bg2: #f8fafc; --card: #ffffff;
+    --card-border: rgba(15,23,42,0.06); --ink: #1e293b; --muted: #64748b;
+    --accent: #6366f1; --accent-ink: #ffffff;
+    --tip-bg: #fef9c3; --tip-border: #eab308; --tip-ink: #713f12;
+    --warn-bg: #fee2e2; --warn-border: #ef4444; --warn-ink: #7f1d1d;
+    --recap-bg: #ecfdf5; --recap-border: #10b981;
+    --shadow: rgba(15,23,42,0.15); --btn-secondary-bg: #e2e8f0; --btn-secondary-ink: #1e293b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg1: #1e1b4b; --bg2: #0f172a; --card: #1a2036;
+      --card-border: rgba(255,255,255,0.08); --ink: #e7ecff; --muted: #94a3b8;
+      --accent: #818cf8; --accent-ink: #0f172a;
+      --tip-bg: #3f3311; --tip-border: #eab308; --tip-ink: #fef08a;
+      --warn-bg: #3b1212; --warn-border: #f87171; --warn-ink: #fecaca;
+      --recap-bg: #082f22; --recap-border: #34d399;
+      --shadow: rgba(0,0,0,0.5); --btn-secondary-bg: #2a3252; --btn-secondary-ink: #e7ecff;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg1: #1e1b4b; --bg2: #0f172a; --card: #1a2036;
+    --card-border: rgba(255,255,255,0.08); --ink: #e7ecff; --muted: #94a3b8;
+    --accent: #818cf8; --accent-ink: #0f172a;
+    --tip-bg: #3f3311; --tip-border: #eab308; --tip-ink: #fef08a;
+    --warn-bg: #3b1212; --warn-border: #f87171; --warn-ink: #fecaca;
+    --recap-bg: #082f22; --recap-border: #34d399;
+    --shadow: rgba(0,0,0,0.5); --btn-secondary-bg: #2a3252; --btn-secondary-ink: #e7ecff;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { height: 100%; }
+  body { margin: 0; overscroll-behavior: none; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(180deg, var(--bg1), var(--bg2));
+    min-height: 100dvh; display: flex; justify-content: center;
+    padding: 16px; color: var(--ink); transition: background 0.2s, color 0.2s;
+  }
+  .theme-toggle {
+    position: fixed; top: 14px; right: 14px; width: 42px; height: 42px;
+    border-radius: 50%; background: var(--card); border: 1px solid var(--card-border);
+    box-shadow: 0 4px 14px var(--shadow); font-size: 19px; display: flex;
+    align-items: center; justify-content: center; cursor: pointer; z-index: 20; padding: 0;
+  }
+  .theme-toggle:active { transform: scale(0.92); }
+  .wrap { width: 100%; max-width: 760px; padding-top: 8px; }
+  .card { background: var(--card); border: 1px solid var(--card-border); border-radius: 20px; padding: 26px 24px; box-shadow: 0 20px 60px var(--shadow); }
+  .lesson-nav-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 13.5px; padding-right: 48px; }
+  .lesson-nav-top a { color: var(--accent); text-decoration: none; font-weight: 600; }
+  .lesson-badge { background: var(--bg1); color: var(--accent); font-weight: 700; font-size: 11.5px; padding: 4px 10px; border-radius: 999px; }
+  h1 { font-size: clamp(22px, 5vw, 28px); margin: 0 0 4px; }
+  .subtitle { color: var(--muted); font-size: 14.5px; margin-bottom: 18px; line-height: 1.5; }
+  h2.section-title { font-size: 18px; margin: 32px 0 10px; padding-top: 18px; border-top: 1px solid var(--card-border); }
+  h3 { font-size: 15.5px; margin: 20px 0 6px; }
+  p { line-height: 1.65; font-size: 15px; }
+  a { color: var(--accent); }
+  .steps { padding-left: 22px; margin: 10px 0; }
+  .steps li { line-height: 1.65; font-size: 15px; margin-bottom: 8px; }
+  .tip, .warn { border-left: 4px solid; border-radius: 8px; padding: 12px 14px; font-size: 14px; line-height: 1.55; margin: 16px 0; }
+  .tip { background: var(--tip-bg); border-color: var(--tip-border); color: var(--tip-ink); }
+  .warn { background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn-ink); }
+  .tip b.t, .warn b.t { display: block; margin-bottom: 3px; }
+  .recap { background: var(--recap-bg); border: 1px solid var(--recap-border); border-radius: 14px; padding: 16px 18px; margin-top: 30px; }
+  .recap h2 { margin: 0 0 10px; font-size: 16px; }
+  .recap ul { margin: 0; padding-left: 20px; font-size: 14.5px; line-height: 1.75; }
+  .lesson-nav-bottom { display: flex; gap: 10px; margin-top: 24px; }
+  .nav-btn { flex: 1; text-align: center; padding: 13px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 14.5px; background: var(--btn-secondary-bg); color: var(--btn-secondary-ink); }
+  .nav-btn.primary { background: var(--accent); color: var(--accent-ink); }
+  .toc { background: var(--bg1); border-radius: 12px; padding: 12px 16px; font-size: 14px; }
+  .toc ol { margin: 6px 0 0; padding-left: 20px; line-height: 1.8; }
+  .toc a { text-decoration: none; font-weight: 600; }
+  code, .kbd { font-family: Consolas, "Cascadia Mono", Menlo, monospace; }
+  code { background: var(--bg1); padding: 1px 6px; border-radius: 5px; font-size: 13.5px; word-break: break-word; }
+  .kbd { display: inline-block; padding: 1px 7px; border-radius: 5px; border: 1px solid var(--card-border); border-bottom-width: 3px; background: var(--bg1); font-weight: 700; font-size: 12.5px; color: var(--ink); white-space: nowrap; }
+
+  /* flow diagram */
+  .flow { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 16px 0; }
+  .flow .box { background: var(--bg1); border-radius: 12px; padding: 12px 14px; text-align: center; min-width: 120px; font-size: 13px; color: var(--muted); }
+  .flow .box b { display: block; color: var(--ink); font-size: 15px; font-family: Consolas, Menlo, monospace; margin-bottom: 2px; }
+  .flow .arrow { color: var(--accent); font-weight: 800; font-size: 20px; }
+
+  /* code + terminal blocks */
+  .codeblock { position: relative; margin: 12px 0; border-radius: 10px; overflow: hidden; box-shadow: 0 8px 22px var(--shadow); }
+  .codeblock .bar { background: #1f1f1f; color: #aaa; font: 12px "Segoe UI", sans-serif; padding: 7px 12px; display: flex; justify-content: space-between; align-items: center; }
+  .codeblock pre { margin: 0; background: #0c0c0c; color: #d4d4d4; padding: 12px 14px; font: 13.5px/1.6 Consolas, "Cascadia Mono", Menlo, monospace; overflow-x: auto; }
+  .copy-btn { background: #333; color: #ddd; border: 0; border-radius: 6px; font-size: 11.5px; padding: 3px 9px; cursor: pointer; }
+  .copy-btn:active { transform: scale(0.95); }
+  .c-kw { color: #c586c0; } .c-str { color: #ce9178; } .c-pp { color: #9cdcfe; } .c-com { color: #6a9955; } .c-fn { color: #dcdcaa; }
+  .t-out { color: #7ee787; } .t-err { color: #ff7b72; }
+
+  /* windows dialog mockups */
+  .dlg { border-radius: 8px; overflow: hidden; border: 1px solid rgba(0,0,0,0.15); box-shadow: 0 10px 30px var(--shadow); margin: 14px 0; background: #fff; color: #222; max-width: 440px; font: 12.5px "Segoe UI", sans-serif; }
+  .dlg-title { background: #f3f3f3; padding: 8px 12px; border-bottom: 1px solid #ddd; font-weight: 600; display: flex; justify-content: space-between; }
+  .dlg-body { padding: 12px; }
+  .dlg-label { font-weight: 600; margin: 6px 0 4px; }
+  .dlg-list { border: 1px solid #bbb; background: #fff; }
+  .dlg-list div { padding: 4px 8px; display: flex; gap: 14px; font-family: Consolas, monospace; font-size: 12px; }
+  .dlg-list div span:first-child { min-width: 80px; font-family: "Segoe UI", sans-serif; }
+  .dlg-list div.hl { background: #cce4f7; outline: 1px solid #0078d4; }
+  .dlg-list div.new { background: #e8f5e9; font-weight: 700; }
+  .dlg-btns { display: flex; gap: 6px; justify-content: flex-end; margin-top: 10px; flex-wrap: wrap; }
+  .dlg-btn { padding: 4px 14px; border: 1px solid #adadad; background: #e1e1e1; border-radius: 3px; }
+  .dlg-btn.hl { border-color: #0078d4; background: #cce4f7; box-shadow: 0 0 0 2px rgba(0,120,212,0.3); }
+  .dlg-side { display: flex; gap: 10px; }
+  .dlg-side .dlg-list { flex: 1; }
+  .dlg-side .col { display: flex; flex-direction: column; gap: 5px; }
+  .caption { font-size: 12.5px; color: var(--muted); text-align: center; margin-top: -4px; margin-bottom: 14px; }
+
+  .folder-tree { font: 13.5px/1.7 Consolas, Menlo, monospace; background: var(--bg1); border-radius: 10px; padding: 12px 16px; white-space: pre; overflow-x: auto; }
+  .folder-tree b { color: var(--accent); }
+
+  .editor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin: 12px 0; }
+  .editor-grid > div { background: var(--bg1); border-radius: 12px; padding: 12px 14px; font-size: 13.5px; line-height: 1.5; }
+  .editor-grid b { display: block; font-size: 14.5px; margin-bottom: 3px; }
+  .checklist { list-style: none; padding: 0; margin: 10px 0; }
+  .checklist li { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border-radius: 10px; font-size: 14.5px; line-height: 1.5; cursor: pointer; }
+  .checklist li:hover { background: var(--bg1); }
+  .checklist input { margin-top: 4px; width: 17px; height: 17px; accent-color: var(--accent); flex-shrink: 0; }
+
+  @media (max-width: 420px) { .card { padding: 18px 14px; } .dlg-side { flex-direction: column; } .dlg-side .col { flex-direction: row; flex-wrap: wrap; } }
+  .cmd-table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 12px 0; }
+  .cmd-table th, .cmd-table td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--card-border); vertical-align: top; line-height: 1.5; }
+  .cmd-table th { font-size: 12.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .cmd-table td:first-child { white-space: nowrap; }
+  .cmd-table code { font-weight: 700; }
+  .table-scroll { overflow-x: auto; }
+  .quiz { background: var(--bg1); border-radius: 14px; padding: 16px; margin: 14px 0; }
+  .quiz .q-top { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); font-weight: 600; margin-bottom: 10px; }
+  .quiz .q-line { background: #0c0c0c; color: #e5e5e5; font: 15px Consolas, Menlo, monospace; padding: 14px; border-radius: 10px; white-space: pre-wrap; word-break: break-word; }
+  .quiz .q-ctx { font-size: 13px; color: var(--muted); margin: 6px 0 12px; min-height: 1em; }
+  .quiz .opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+  .quiz .opt { border: 2px solid var(--card-border); background: var(--card); color: var(--ink); border-radius: 10px; padding: 10px; font: 600 13.5px inherit; font-family: inherit; cursor: pointer; text-align: left; border-left-width: 6px; }
+  .quiz .opt:disabled { cursor: default; }
+  .quiz .opt.right { background: #dcfce7; color: #14532d; border-color: #16a34a; }
+  .quiz .opt.wrong { background: #fee2e2; color: #7f1d1d; border-color: #dc2626; }
+  .quiz .fb { margin-top: 12px; font-size: 14px; line-height: 1.55; min-height: 1.2em; }
+  .quiz .next { margin-top: 10px; background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 10px; padding: 10px 18px; font: 700 14px inherit; font-family: inherit; cursor: pointer; display: none; }
+  .quiz .result { text-align: center; padding: 10px 0; }
+  .quiz .result .big { font-size: 34px; font-weight: 800; color: var(--accent); }
+
+  .c-num { color: #b5cea8; }
+  .chip { border: 2px solid var(--accent); background: transparent; color: var(--ink); border-radius: 999px; padding: 5px 11px; font: 700 12.5px Consolas, Menlo, monospace; cursor: pointer; }
+  .chip:hover { background: var(--card); }
+  .outp { color: #7ee787 !important; }
+  .codeblock + .codeblock { margin-top: -6px; border-top-left-radius: 0; border-top-right-radius: 0; }
+  .codeblock.err pre { color: #d4d4d4; }
+  .q-opt-code { font-family: Consolas, Menlo, monospace; }
+  .widget { background: var(--bg1); border-radius: 14px; padding: 16px; margin: 14px 0; }
+  .widget h3 { margin: 0 0 8px; }
+  .widget input { font: 15px Consolas, Menlo, monospace; padding: 9px 11px; border-radius: 9px; border: 2px solid var(--card-border); background: var(--card); color: var(--ink); width: 100%; max-width: 260px; }
+  .widget input:focus { outline: none; border-color: var(--accent); }
+  .widget .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .widget .verdict { margin-top: 10px; font-weight: 700; font-size: 14.5px; min-height: 1.4em; }
+  .widget .verdict.ok { color: #16a34a; } .widget .verdict.bad { color: #dc2626; }
+  :root[data-theme="dark"] .widget .verdict.ok { color: #4ade80; } :root[data-theme="dark"] .widget .verdict.bad { color: #f87171; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .widget .verdict.ok { color: #4ade80; } :root:not([data-theme="light"]) .widget .verdict.bad { color: #f87171; } }
+  .box-vis { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin: 16px 0; }
+  .box-vis .bx { width: 130px; text-align: center; }
+  .box-vis .lid { font: 700 12px Consolas, Menlo, monospace; color: var(--accent); margin-bottom: 4px; }
+  .box-vis .body { border: 3px solid var(--accent); border-top-width: 8px; border-radius: 6px 6px 12px 12px; padding: 16px 6px; font: 700 20px Consolas, Menlo, monospace; background: var(--card); }
+  .box-vis .nm { margin-top: 6px; font-weight: 700; font-size: 14px; }
+  .calc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-top: 12px; }
+  .calc-grid div { background: var(--card); border-radius: 10px; padding: 10px; text-align: center; font: 14px Consolas, Menlo, monospace; }
+  .calc-grid b { display: block; font-size: 18px; color: var(--accent); margin-top: 3px; }
+  .calc-grid small { display: block; font: 11.5px -apple-system, "Segoe UI", sans-serif; color: var(--muted); margin-top: 3px; }
+
+</style>
+</head>
+<body>
+<button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark mode">🌙</button>
+<div class="wrap">
+  <div class="card">
+    <div class="lesson-nav-top">
+      <a href="index.html">← All Lessons</a>
+      <span class="lesson-badge">Lesson 4</span>
+    </div>
+
+    <h1>📐 C Syntax</h1>
+    <div class="subtitle"><b>Syntax</b> means the rules for how code must be written, like grammar and punctuation in English. If you break a rule, the compiler can't understand your program.</div>
+
+    <div class="toc"><b>In this lesson</b><ol><li><a href="#parts">Hello World, line by line</a></li><li><a href="#semicolon">Every statement ends with ;</a></li><li><a href="#spaces">Spaces and new lines</a></li><li><a href="#braces">Curly braces { } come in pairs</a></li><li><a href="#case">C is case-sensitive</a></li><li><a href="#quiz-sec">Quiz</a></li></ol></div>
+
+<h2 class="section-title" id="parts">1. Hello World, line by line</h2><p>Let's look closely at the Hello World program and what each line does.</p><div class="codeblock"><div class="bar"><span>hello.c</span><button class="copy-btn" data-copy-target="code1" type="button">Copy</button></div><pre id="code1"><span class="c-pp">#include</span> <span class="c-str">&lt;stdio.h&gt;</span>
+
+<span class="c-kw">int</span> <span class="c-fn">main</span>() {
+    <span class="c-fn">printf</span>(<span class="c-str">&quot;Hello World!\n&quot;</span>);
+    <span class="c-kw">return</span> <span class="c-num">0</span>;
+}
+</pre></div><div class="codeblock"><div class="bar"><span>▶ Output</span></div><pre class="outp">Hello World!</pre></div><div class="table-scroll"><table class="cmd-table"><tr><th>Line</th><th>Code</th><th>What it means</th></tr><tr><td>1</td><td><code>#include &lt;stdio.h&gt;</code></td><td>Brings in the <b>standard input/output</b> header file, so we can use <code>printf()</code>. Almost every program has this line.</td></tr><tr><td>2</td><td><i>(blank)</i></td><td>Blank lines are ignored. They just make code easier to read.</td></tr><tr><td>3</td><td><code>int main() {</code></td><td><code>main()</code> is where the program <b>starts</b>. The code inside its braces <code>{ }</code> runs.</td></tr><tr><td>4</td><td><code>printf(&quot;Hello World!\n&quot;);</code></td><td>Prints text on the screen. (<code>\n</code> moves to a new line. More in Lesson 5!)</td></tr><tr><td>5</td><td><code>return 0;</code></td><td>Ends main() and tells the computer "finished successfully."</td></tr><tr><td>6</td><td><code>}</code></td><td>Closes main(). Never forget the closing brace!</td></tr></table></div><h2 class="section-title" id="semicolon">2. Every statement ends with ;</h2><p>A <b>statement</b> is one instruction, like a sentence. In English a sentence ends with a period. In C, a statement ends with a <b>semicolon</b> <code>;</code>.</p><div class="codeblock"><div class="bar"><span>snippet</span><button class="copy-btn" data-copy-target="code2" type="button">Copy</button></div><pre id="code2"><span class="c-fn">printf</span>(<span class="c-str">&quot;Hi!\n&quot;</span>);   <span class="c-com">// statement 1</span>
+<span class="c-kw">return</span> <span class="c-num">0</span>;          <span class="c-com">// statement 2</span></pre></div><p>If you forget a semicolon, gcc stops and tells you where it expected one:</p><div class="codeblock"><div class="bar"><span>example.c</span><button class="copy-btn" data-copy-target="code3" type="button">Copy</button></div><pre id="code3"><span class="c-pp">#include</span> <span class="c-str">&lt;stdio.h&gt;</span>
+
+<span class="c-kw">int</span> <span class="c-fn">main</span>() {
+    <span class="c-fn">printf</span>(<span class="c-str">&quot;Hello World!\n&quot;</span>)
+    <span class="c-kw">return</span> <span class="c-num">0</span>;
+}
+</pre></div><div class="codeblock err"><div class="bar"><span>❌ Compiler says</span></div><pre>C:\cprog&gt; gcc example.c -o example
+<span class="t-err">example.c:4:29: error: expected &#x27;;&#x27; before &#x27;return&#x27;
+    4 |     printf(&quot;Hello World!\n&quot;)
+      |                             ^</span></pre></div><div class="tip"><b class="t">💡 Read the error message!</b>The <code>4:29</code> means <b>line 4, column 29</b>. gcc even shows a <code>^</code> pointing at the spot and suggests the missing <code>;</code>. gcc says "before 'return'" because it only notices the problem when it reaches the next line.</div><div class="warn"><b class="t">⚠️ No semicolon here</b>Lines that start with <code>#</code> (like <code>#include</code>) and lines that end with <code>{</code> or <code>}</code> do <b>not</b> get a semicolon.</div><h2 class="section-title" id="spaces">3. Spaces and new lines</h2><p>The compiler ignores extra spaces, tabs and blank lines. This program works exactly the same, even squeezed onto one line:</p><div class="codeblock"><div class="bar"><span>example.c</span><button class="copy-btn" data-copy-target="code4" type="button">Copy</button></div><pre id="code4"><span class="c-pp">#include</span> <span class="c-str">&lt;stdio.h&gt;</span>
+<span class="c-kw">int</span> <span class="c-fn">main</span>(){<span class="c-fn">printf</span>(<span class="c-str">&quot;Hello World!\n&quot;</span>);<span class="c-kw">return</span> <span class="c-num">0</span>;}
+</pre></div><div class="codeblock"><div class="bar"><span>▶ Output</span></div><pre class="outp">Hello World!</pre></div><p>It works, but it's hard to read! Programmers write <b>one statement per line</b> and <b>indent</b> (push in with <span class="kbd">Tab</span> or 4 spaces) the code inside braces, so you can see at a glance what belongs inside <code>main()</code>.</p><h2 class="section-title" id="braces">4. Curly braces { } come in pairs</h2><p>Curly braces group code together into a <b>block</b>. Every opening <code>{</code> must have a closing <code>}</code>. Here's what happens when one is missing:</p><div class="codeblock"><div class="bar"><span>example.c</span><button class="copy-btn" data-copy-target="code5" type="button">Copy</button></div><pre id="code5"><span class="c-pp">#include</span> <span class="c-str">&lt;stdio.h&gt;</span>
+
+<span class="c-kw">int</span> <span class="c-fn">main</span>() {
+    <span class="c-fn">printf</span>(<span class="c-str">&quot;Hello World!\n&quot;</span>);
+    <span class="c-kw">return</span> <span class="c-num">0</span>;
+</pre></div><div class="codeblock err"><div class="bar"><span>❌ Compiler says</span></div><pre>C:\cprog&gt; gcc example.c -o example
+<span class="t-err">example.c:5:5: error: expected declaration or statement at end of input
+    5 |     return 0;
+      |     ^~~~~~</span></pre></div><div class="tip"><b class="t">💡 Sublime Text helps</b>Click right after a <code>{</code> and Sublime underlines its matching <code>}</code>. If nothing lights up, a brace is missing!</div><h2 class="section-title" id="case">5. C is case-sensitive</h2><p>Uppercase and lowercase letters are <b>different</b> in C. <code>printf</code>, <code>Printf</code> and <code>PRINTF</code> are three different names, and only the lowercase one exists.</p><div class="codeblock"><div class="bar"><span>example.c</span><button class="copy-btn" data-copy-target="code6" type="button">Copy</button></div><pre id="code6"><span class="c-pp">#include</span> <span class="c-str">&lt;stdio.h&gt;</span>
+
+<span class="c-kw">int</span> <span class="c-fn">main</span>() {
+    <span class="c-fn">Printf</span>(<span class="c-str">&quot;Hello World!\n&quot;</span>);
+    <span class="c-kw">return</span> <span class="c-num">0</span>;
+}
+</pre></div><div class="codeblock err"><div class="bar"><span>❌ Compiler says</span></div><pre>C:\cprog&gt; gcc example.c -o example
+<span class="t-err">example.c:4:5: error: implicit declaration of function &#x27;Printf&#x27;; did you mean &#x27;printf&#x27;? [-Werror=implicit-function-declaration]
+    4 |     Printf(&quot;Hello World!\n&quot;);
+      |     ^~~~~~</span></pre></div><p>Keywords and built-in functions such as <code>int</code>, <code>main</code>, <code>return</code> and <code>printf</code> are always written in <b>lowercase</b>.</p>
+    <h2 class="section-title" id="quiz-sec">6. Quiz 🎯</h2>
+    <div class="quiz" id="quiz"></div>
+    <script type="application/json" id="quizData">[{"q": "What must every C statement end with?", "opts": ["A period .", "A semicolon ;", "A colon :", "A comma ,"], "a": 1, "why": "Statements in C end with a semicolon, just like sentences end with a period."}, {"q": "Where does a C program start running?", "opts": ["At #include", "At the first line", "At main()", "At return 0;"], "a": 2, "why": "main() is the special function where every C program begins."}, {"q": "Which line is written correctly?", "opts": ["Printf(\"Hi\");", "printf(\"Hi\")", "printf(\"Hi\");", "PRINTF(\"Hi\");"], "a": 2, "why": "printf must be lowercase (C is case-sensitive) and the statement needs a semicolon.", "mono": true}, {"q": "Will this program compile?", "opts": ["Yes, extra spaces and lines are ignored", "No, it needs to be on separate lines", "No, main must be uppercase", "Only on Mac"], "a": 0, "why": "The compiler ignores extra spaces and new lines. It works, but it is hard to read!", "code": "int main(){printf(\"Hi\\n\");return 0;}"}, {"q": "Which line does NOT end with a semicolon?", "opts": ["printf(\"Hello\");", "return 0;", "#include <stdio.h>", "int age = 13;"], "a": 2, "why": "Lines that start with # are instructions for the preprocessor, not statements, so they have no semicolon.", "mono": true}, {"q": "gcc says: hello.c:7:5: error. Where is the problem?", "opts": ["Line 5, column 7", "Line 7, column 5", "Page 7", "The 5th program"], "a": 1, "why": "The format is file:line:column. So 7:5 means line 7, column 5."}]</script>
+
+    <div class="tip"><b class="t">Try It! On a real computer</b>Type the Hello World program <b>without looking</b>. Compile it. Then make mistakes on purpose, one at a time: remove a <code>;</code>, change <code>printf</code> to <code>Printf</code>, and delete the last <code>}</code>. Read each error message gcc gives you, then fix it.</div>
+
+    <div class="recap">
+      <h2>✅ What You Learned</h2>
+      <ul><li><b>Syntax</b> = the rules for writing code.</li><li>Every statement ends with <code>;</code> (but not <code>#include</code> lines or braces).</li><li>Code inside <code>{ }</code> is a block. Every <code>{</code> needs a <code>}</code>.</li><li>Spaces and blank lines are ignored, so use them to make code readable.</li><li>C is <b>case-sensitive</b>: write <code>printf</code> and <code>main</code> in lowercase.</li><li>gcc errors show <code>line:column</code>. Read them!</li></ul>
+    </div>
+
+    <div class="lesson-nav-bottom">
+      <a class="nav-btn" href="lesson-3-structure-of-c.html">← Lesson 3</a>
+      <a class="nav-btn primary" href="lesson-5-c-output.html">Lesson 5 →</a>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  const THEME_KEY = 'cProgLessonsTheme';
+  const root = document.documentElement;
+  const btn = document.getElementById('themeToggle');
+  function eff() { const x = root.getAttribute('data-theme'); if (x) return x; return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+  function icon() { const d = eff() === 'dark'; btn.textContent = d ? '☀️' : '🌙'; btn.setAttribute('aria-label', d ? 'Switch to light mode' : 'Switch to dark mode'); }
+  let saved = null; try { saved = localStorage.getItem(THEME_KEY); } catch (e) {}
+  if (saved === 'light' || saved === 'dark') root.setAttribute('data-theme', saved);
+  icon();
+  btn.addEventListener('click', () => { const t = eff() === 'dark' ? 'light' : 'dark'; root.setAttribute('data-theme', t); icon(); try { localStorage.setItem(THEME_KEY, t); } catch (e) {} });
+
+  document.querySelectorAll('.copy-btn').forEach(b => b.addEventListener('click', () => {
+    const text = document.getElementById(b.dataset.copyTarget).textContent;
+    const done = () => { const o = b.textContent; b.textContent = 'Copied!'; setTimeout(() => b.textContent = o, 1200); };
+    const fb = () => { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch (e) {} ta.remove(); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fb); else fb();
+  }));
+
+  /* quiz engine */
+  const quiz = document.getElementById('quiz');
+  if (quiz) {
+    const Q = JSON.parse(document.getElementById('quizData').textContent);
+    let qi = 0, score = 0;
+    function render() {
+      quiz.innerHTML = '';
+      if (qi >= Q.length) {
+        const pct = score / Q.length;
+        quiz.innerHTML = `<div class="result"><div class="big">${score} / ${Q.length}</div><p>${pct === 1 ? '🏆 Perfect score!' : pct >= 0.7 ? '🎉 Great job!' : '💪 Good try! Review the lesson and try again.'}</p><button class="next" style="display:inline-block" type="button">Try again</button></div>`;
+        quiz.querySelector('.next').addEventListener('click', () => { qi = 0; score = 0; render(); });
+        return;
+      }
+      const q = Q[qi];
+      const top = document.createElement('div'); top.className = 'q-top';
+      top.innerHTML = `<span>Question ${qi + 1} of ${Q.length}</span><span>Score: ${score}</span>`;
+      const ask = document.createElement('div'); ask.className = 'q-ctx'; ask.style.cssText = 'font-size:15px;color:var(--ink);font-weight:600;margin:0 0 10px'; ask.textContent = q.q;
+      quiz.append(top, ask);
+      if (q.code) { const l = document.createElement('div'); l.className = 'q-line'; l.style.marginBottom = '12px'; l.textContent = q.code; quiz.appendChild(l); }
+      const opts = document.createElement('div'); opts.className = 'opts';
+      const fb = document.createElement('div'); fb.className = 'fb';
+      const next = document.createElement('button'); next.className = 'next'; next.type = 'button';
+      next.textContent = qi === Q.length - 1 ? 'See my score' : 'Next →';
+      next.addEventListener('click', () => { qi++; render(); });
+      q.opts.forEach((label, k) => {
+        const b = document.createElement('button'); b.className = 'opt' + (q.mono ? ' q-opt-code' : ''); b.type = 'button';
+        b.style.whiteSpace = 'pre-wrap'; b.textContent = label;
+        b.addEventListener('click', () => {
+          const ok = k === q.a; if (ok) score++;
+          opts.querySelectorAll('.opt').forEach((o, j) => { o.disabled = true; if (j === q.a) o.classList.add('right'); });
+          if (!ok) b.classList.add('wrong');
+          fb.innerHTML = ok ? '<b>✅ Correct!</b> ' : '<b>❌ Not quite.</b> ';
+          fb.appendChild(document.createTextNode(q.why));
+          next.style.display = 'inline-block';
+          top.lastElementChild.textContent = 'Score: ' + score;
+        });
+        opts.appendChild(b);
+      });
+      quiz.append(opts, fb, next);
+    }
+    render();
+  }
+})();
+</script>
+
+</body>
+</html>

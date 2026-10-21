@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 11: C Operators</title>
+<style>
+  :root {
+    --bg1: #eef2ff; --bg2: #f8fafc; --card: #ffffff;
+    --card-border: rgba(15,23,42,0.06); --ink: #1e293b; --muted: #64748b;
+    --accent: #6366f1; --accent-ink: #ffffff;
+    --tip-bg: #fef9c3; --tip-border: #eab308; --tip-ink: #713f12;
+    --warn-bg: #fee2e2; --warn-border: #ef4444; --warn-ink: #7f1d1d;
+    --recap-bg: #ecfdf5; --recap-border: #10b981;
+    --shadow: rgba(15,23,42,0.15); --btn-secondary-bg: #e2e8f0; --btn-secondary-ink: #1e293b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg1: #1e1b4b; --bg2: #0f172a; --card: #1a2036;
+      --card-border: rgba(255,255,255,0.08); --ink: #e7ecff; --muted: #94a3b8;
+      --accent: #818cf8; --accent-ink: #0f172a;
+      --tip-bg: #3f3311; --tip-border: #eab308; --tip-ink: #fef08a;
+      --warn-bg: #3b1212; --warn-border: #f87171; --warn-ink: #fecaca;
+      --recap-bg: #082f22; --recap-border: #34d399;
+      --shadow: rgba(0,0,0,0.5); --btn-secondary-bg: #2a3252; --btn-secondary-ink: #e7ecff;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg1: #1e1b4b; --bg2: #0f172a; --card: #1a2036;
+    --card-border: rgba(255,255,255,0.08); --ink: #e7ecff; --muted: #94a3b8;
+    --accent: #818cf8; --accent-ink: #0f172a;
+    --tip-bg: #3f3311; --tip-border: #eab308; --tip-ink: #fef08a;
+    --warn-bg: #3b1212; --warn-border: #f87171; --warn-ink: #fecaca;
+    --recap-bg: #082f22; --recap-border: #34d399;
+    --shadow: rgba(0,0,0,0.5); --btn-secondary-bg: #2a3252; --btn-secondary-ink: #e7ecff;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { height: 100%; }
+  body { margin: 0; overscroll-behavior: none; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(180deg, var(--bg1), var(--bg2));
+    min-height: 100dvh; display: flex; justify-content: center;
+    padding: 16px; color: var(--ink); transition: background 0.2s, color 0.2s;
+  }
+  .theme-toggle {
+    position: fixed; top: 14px; right: 14px; width: 42px; height: 42px;
+    border-radius: 50%; background: var(--card); border: 1px solid var(--card-border);
+    box-shadow: 0 4px 14px var(--shadow); font-size: 19px; display: flex;
+    align-items: center; justify-content: center; cursor: pointer; z-index: 20; padding: 0;
+  }
+  .theme-toggle:active { transform: scale(0.92); }
+  .wrap { width: 100%; max-width: 760px; padding-top: 8px; }
+  .card { background: var(--card); border: 1px solid var(--card-border); border-radius: 20px; padding: 26px 24px; box-shadow: 0 20px 60px var(--shadow); }
+  .lesson-nav-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 13.5px; padding-right: 48px; }
+  .lesson-nav-top a { color: var(--accent); text-decoration: none; font-weight: 600; }
+  .lesson-badge { background: var(--bg1); color: var(--accent); font-weight: 700; font-size: 11.5px; padding: 4px 10px; border-radius: 999px; }
+  h1 { font-size: clamp(22px, 5vw, 28px); margin: 0 0 4px; }
+  .subtitle { color: var(--muted); font-size: 14.5px; margin-bottom: 18px; line-height: 1.5; }
+  h2.section-title { font-size: 18px; margin: 32px 0 10px; padding-top: 18px; border-top: 1px solid var(--card-border); }
+  h3 { font-size: 15.5px; margin: 20px 0 6px; }
+  p { line-height: 1.65; font-size: 15px; }
+  a { color: var(--accent); }
+  .steps { padding-left: 22px; margin: 10px 0; }
+  .steps li { line-height: 1.65; font-size: 15px; margin-bottom: 8px; }
+  .tip, .warn { border-left: 4px solid; border-radius: 8px; padding: 12px 14px; font-size: 14px; line-height: 1.55; margin: 16px 0; }
+  .tip { background: var(--tip-bg); border-color: var(--tip-border); color: var(--tip-ink); }
+  .warn { background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn-ink); }
+  .tip b.t, .warn b.t { display: block; margin-bottom: 3px; }
+  .recap { background: var(--recap-bg); border: 1px solid var(--recap-border); border-radius: 14px; padding: 16px 18px; margin-top: 30px; }
+  .recap h2 { margin: 0 0 10px; font-size: 16px; }
+  .recap ul { margin: 0; padding-left: 20px; font-size: 14.5px; line-height: 1.75; }
+  .lesson-nav-bottom { display: flex; gap: 10px; margin-top: 24px; }
+  .nav-btn { flex: 1; text-align: center; padding: 13px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 14.5px; background: var(--btn-secondary-bg); color: var(--btn-secondary-ink); }
+  .nav-btn.primary { background: var(--accent); color: var(--accent-ink); }
+  .toc { background: var(--bg1); border-radius: 12px; padding: 12px 16px; font-size: 14px; }
+  .toc ol { margin: 6px 0 0; padding-left: 20px; line-height: 1.8; }
+  .toc a { text-decoration: none; font-weight: 600; }
+  code, .kbd { font-family: Consolas, "Cascadia Mono", Menlo, monospace; }
+  code { background: var(--bg1); padding: 1px 6px; border-radius: 5px; font-size: 13.5px; word-break: break-word; }
+  .kbd { display: inline-block; padding: 1px 7px; border-radius: 5px; border: 1px solid var(--card-border); border-bottom-width: 3px; background: var(--bg1); font-weight: 700; font-size: 12.5px; color: var(--ink); white-space: nowrap; }
+
+  /* flow diagram */
+  .flow { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 16px 0; }
+  .flow .box { background: var(--bg1); border-radius: 12px; padding: 12px 14px; text-align: center; min-width: 120px; font-size: 13px; color: var(--muted); }
+  .flow .box b { display: block; color: var(--ink); font-size: 15px; font-family: Consolas, Menlo, monospace; margin-bottom: 2px; }
+  .flow .arrow { color: var(--accent); font-weight: 800; font-size: 20px; }
+
+  /* code + terminal blocks */
+  .codeblock { position: relative; margin: 12px 0; border-radius: 10px; overflow: hidden; box-shadow: 0 8px 22px var(--shadow); }
+  .codeblock .bar { background: #1f1f1f; color: #aaa; font: 12px "Segoe UI", sans-serif; padding: 7px 12px; display: flex; justify-content: space-between; align-items: center; }
+  .codeblock pre { margin: 0; background: #0c0c0c; color: #d4d4d4; padding: 12px 14px; font: 13.5px/1.6 Consolas, "Cascadia Mono", Menlo, monospace; overflow-x: auto; }
+  .copy-btn { background: #333; color: #ddd; border: 0; border-radius: 6px; font-size: 11.5px; padding: 3px 9px; cursor: pointer; }
+  .copy-btn:active { transform: scale(0.95); }
+  .c-kw { color: #c586c0; } .c-str { color: #ce9178; } .c-pp { color: #9cdcfe; } .c-com { color: #6a9955; } .c-fn { color: #dcdcaa; }
+  .t-out { color: #7ee787; } .t-err { color: #ff7b72; }
+
+  /* windows dialog mockups */
+  .dlg { border-radius: 8px; overflow: hidden; border: 1px solid rgba(0,0,0,0.15); box-shadow: 0 10px 30px var(--shadow); margin: 14px 0; background: #fff; color: #222; max-width: 440px; font: 12.5px "Segoe UI", sans-serif; }
+  .dlg-title { background: #f3f3f3; padding: 8px 12px; border-bottom: 1px solid #ddd; font-weight: 600; display: flex; justify-content: space-between; }
+  .dlg-body { padding: 12px; }
+  .dlg-label { font-weight: 600; margin: 6px 0 4px; }
+  .dlg-list { border: 1px solid #bbb; background: #fff; }
+  .dlg-list div { padding: 4px 8px; display: flex; gap: 14px; font-family: Consolas, monospace; font-size: 12px; }
+  .dlg-list div span:first-child { min-width: 80px; font-family: "Segoe UI", sans-serif; }
+  .dlg-list div.hl { background: #cce4f7; outline: 1px solid #0078d4; }
+  .dlg-list div.new { background: #e8f5e9; font-weight: 700; }
+  .dlg-btns { display: flex; gap: 6px; justify-content: flex-end; margin-top: 10px; flex-wrap: wrap; }
+  .dlg-btn { padding: 4px 14px; border: 1px solid #adadad; background: #e1e1e1; border-radius: 3px; }
+  .dlg-btn.hl { border-color: #0078d4; background: #cce4f7; box-shadow: 0 0 0 2px rgba(0,120,212,0.3); }
+  .dlg-side { display: flex; gap: 10px; }
+  .dlg-side .dlg-list { flex: 1; }
+  .dlg-side .col { display: flex; flex-direction: column; gap: 5px; }
+  .caption { font-size: 12.5px; color: var(--muted); text-align: center; margin-top: -4px; margin-bottom: 14px; }
+
+  .folder-tree { font: 13.5px/1.7 Consolas, Menlo, monospace; background: var(--bg1); border-radius: 10px; padding: 12px 16px; white-space: pre; overflow-x: auto; }
+  .folder-tree b { color: var(--accent); }
+
+  .editor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin: 12px 0; }
+  .editor-grid > div { background: var(--bg1); border-radius: 12px; padding: 12px 14px; font-size: 13.5px; line-height: 1.5; }
+  .editor-grid b { display: block; font-size: 14.5px; margin-bottom: 3px; }
+  .checklist { list-style: none; padding: 0; margin: 10px 0; }
+  .checklist li { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border-radius: 10px; font-size: 14.5px; line-height: 1.5; cursor: pointer; }
+  .checklist li:hover { background: var(--bg1); }
+  .checklist input { margin-top: 4px; width: 17px; height: 17px; accent-color: var(--accent); flex-shrink: 0; }
+
+  @media (max-width: 420px) { .card { padding: 18px 14px; } .dlg-side { flex-direction: column; } .dlg-side .col { flex-direction: row; flex-wrap: wrap; } }
+  .cmd-table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 12px 0; }
+  .cmd-table th, .cmd-table td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--card-border); vertical-align: top; line-height: 1.5; }
+  .cmd-table th { font-size: 12.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .cmd-table td:first-child { white-space: nowrap; }
+  .cmd-table code { font-weight: 700; }
+  .table-scroll { overflow-x: auto; }
+  .quiz { background: var(--bg1); border-radius: 14px; padding: 16px; margin: 14px 0; }
+  .quiz .q-top { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); font-weight: 600; margin-bottom: 10px; }
+  .quiz .q-line { background: #0c0c0c; color: #e5e5e5; font: 15px Consolas, Menlo, monospace; padding: 14px; border-radius: 10px; white-space: pre-wrap; word-break: break-word; }
+  .quiz .q-ctx { font-size: 13px; color: var(--muted); margin: 6px 0 12px; min-height: 1em; }
+  .quiz .opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+  .quiz .opt { border: 2px solid var(--card-border); background: var(--card); color: var(--ink); border-radius: 10px; padding: 10px; font: 600 13.5px inherit; font-family: inherit; cursor: pointer; text-align: left; border-left-width: 6px; }
+  .quiz .opt:disabled { cursor: default; }
+  .quiz .opt.right { background: #dcfce7; color: #14532d; border-color: #16a34a; }
+  .quiz .opt.wrong { background: #fee2e2; color: #7f1d1d; border-color: #dc2626; }
+  .quiz .fb { margin-top: 12px; font-size: 14px; line-height: 1.55; min-height: 1.2em; }
+  .quiz .next { margin-top: 10px; background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 10px; padding: 10px 18px; font: 700 14px inherit; font-family: inherit; cursor: pointer; display: none; }
+  .quiz .result { text-align: center; padding: 10px 0; }
+  .quiz .result .big { font-size: 34px; font-weight: 800; color: var(--accent); }
+
+  .c-num { color: #b5cea8; }
+  .chip { border: 2px solid var(--accent); background: transparent; color: var(--ink); border-radius: 999px; padding: 5px 11px; font: 700 12.5px Consolas, Menlo, monospace; cursor: pointer; }
+  .chip:hover { background: var(--card); }
+  .outp { color: #7ee787 !important; }
+  .codeblock + .codeblock { margin-top: -6px; border-top-left-radius: 0; border-top-right-radius: 0; }
+  .codeblock.err pre { color: #d4d4d4; }
+  .q-opt-code { font-family: Consolas, Menlo, monospace; }
+  .widget { background: var(--bg1); border-radius: 14px; padding: 16px; margin: 14px 0; }
+  .widget h3 { margin: 0 0 8px; }
+  .widget input { font: 15px Consolas, Menlo, monospace; padding: 9px 11px; border-radius: 9px; border: 2px solid var(--card-border); background: var(--card); color: var(--ink); width: 100%; max-width: 260px; }
+  .widget input:focus { outline: none; border-color: var(--accent); }
+  .widget .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .widget .verdict { margin-top: 10px; font-weight: 700; font-size: 14.5px; min-height: 1.4em; }
+  .widget .verdict.ok { color: #16a34a; } .widget .verdict.bad { color: #dc2626; }
+  :root[data-theme="dark"] .widget .verdict.ok { color: #4ade80; } :root[data-theme="dark"] .widget .verdict.bad { color: #f87171; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .widget .verdict.ok { color: #4ade80; } :root:not([data-theme="light"]) .widget .verdict.bad { color: #f87171; } }
+  .box-vis { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin: 16px 0; }
+  .box-vis .bx { width: 130px; text-align: center; }
+  .box-vis .lid { font: 700 12px Consolas, Menlo, monospace; color: var(--accent); margin-bottom: 4px; }
+  .box-vis .body { border: 3px solid var(--accent); border-top-width: 8px; border-radius: 6px 6px 12px 12px; padding: 16px 6px; font: 700 20px Consolas, Menlo, monospace; background: var(--card); }
+  .box-vis .nm { margin-top: 6px; font-weight: 700; font-size: 14px; }
+  .calc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-top: 12px; }
+  .calc-grid div { background: var(--card); border-radius: 10px; padding: 10px; text-align: center; font: 14px Consolas, Menlo, monospace; }
+  .calc-grid b { display: block; font-size: 18px; color: var(--accent); margin-top: 3px; }
+  .calc-grid small { display: block; font: 11.5px -apple-system, "Segoe UI", sans-serif; color: var(--muted); margin-top: 3px; }
+
+</style>
+</head>
+<body>
+<button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark mode">🌙</button>
+<div class="wrap">
+  <div class="card">
+    <div class="lesson-nav-top">
+      <a href="index.html">← All Lessons</a>
+      <span class="lesson-badge">Lesson 11</span>
+    </div>
+
+    <h1>➕ C Operators</h1>
+    <div class="subtitle"><b>Operators</b> are symbols that do things to values and variables: add, compare, combine and more. The values they work on are called <b>operands</b>.</div>
+
+    <div class="toc"><b>In this lesson</b><ol><li><a href="#intro">What is an operator?</a></li><li><a href="#arith">Arithmetic operators</a></li><li><a href="#assign">Assignment operators</a></li><li><a href="#compare">Comparison operators</a></li><li><a href="#logic">Logical operators</a></li><li><a href="#order">Order of operations</a></li><li><a href="#quiz-sec">Quiz</a></li></ol></div>
+
+<h2 class="section-title" id="intro">1. What is an operator?</h2><p>In <code>100 + 50</code>, the <code>+</code> is the <b>operator</b> and 100 and 50 are the <b>operands</b>. Operators work with plain values, with variables, or with both:</p><div class="codeblock"><div class="bar"><span>example.c</span><button class="copy-btn" data-copy-target="code49" type="button">Copy</button></div><pre id="code49"><span class="c-pp">#include</span> <span class="c-str">&lt;stdio.h&gt;</span>
+
+<span class="c-kw">int</span> <span class="c-fn">main</span>() {
+    <span class="c-kw">int</span> sum1 = <span class="c-num">100</span> + <span class="c-num">50</span>;       <span class="c-com">// 150 (100 + 50)</span>
+    <span class="c-kw">int</span> sum2 = sum1 + <span class="c-num">250</span>;     <span class="c-com">// 400 (150 + 250)</span>
+    <span class="c-kw">int</span> sum3 = sum2 + sum2;    <span class="c-com">// 800 (400 + 400)</span>
+
+    <span class="c-fn">printf</span>(<span class="c-str">&quot;%d\n%d\n%d\n&quot;</span>, sum1, sum2, sum3);
+    <span class="c-kw">return</span> <span class="c-num">0</span>;
+}
+</pre></div><div class="codeblock"><div class="bar"><span>▶ Output</span></div><pre class="outp">150
+400
+800</pre></div><p>C groups operators into families. In this lesson we'll cover the first four:</p><ol class="steps"><li><b>Arithmetic</b> operators: math</li><li><b>Assignment</b> operators: storing values</li><li><b>Comparison</b> operators: comparing values</li><li><b>Logical</b> operators: combining true/false</li><li><b>Bitwise</b> operators: advanced, for later!</li></ol><h2 class="section-title" id="arith">2. Arithmetic operators</h2><div class="table-scroll"><table class="cmd-table"><tr><th>Operator</th><th>Name</th><th>Example</th><th>Result (int)</th></tr><tr><td><code>+</code></td><td>Addition</td><td><code>17 + 5</code></td><td>22</td></tr><tr><td><code>-</code></td><td>Subtraction</td><td><code>17 - 5</code></td><td>12</td></tr><tr><td><code>*</code></td><td>Multiplication</td><td><code>17 * 5</code></td><td>85</td></tr><tr><td><code>/</code></td><td>Division</td><td><code>17 / 5</code></td><td>3</td></tr><tr><td><code>%</code></td><td>Modulus (remainder)</td><td><code>17 % 5</code></td><td>2</td></tr><tr><td><code>++</code></td><td>Increment (add 1)</td><td><code>x++</code></td><td>x goes up by 1</td></tr><tr><td><code>--</code></td><td>Decrement (subtract 1)</td><td><code>x--</code></td><td>x goes down by 1</td></tr></table></div><h3>Division and modulus: the pizza example 🍕</h3><p>You have <b>17 slices</b> to share among <b>5 friends</b>. Each friend gets <code>17 / 5</code> = <b>3</b> slices, and <code>17 % 5</code> = <b>2</b> slices are left over.</p><div class="codeblock"><div class="bar"><span>example.c</span><button class="copy-btn" data-copy-target="code50" type="button">Copy</button></div><pre id="code50"><span class="c-pp">#include</span> <span class="c-str">&lt;stdio.h&gt;</span>
+
+<span class="c-kw">int</span> <span class="c-fn">main</span>() {
+    <span class="c-kw">int</span> slices = <span class="c-num">17</span>;
+    <span class="c-kw">int</span> friends = <span class="c-num">5</span>;
+
+    <span class="c-fn">printf</span>(<span class="c-str">&quot;Each friend gets: %d\n&quot;</span>, slices / friends);
+    <span class="c-fn">printf</span>(<span class="c-str">&quot;Left over: %d\n&quot;</span>, slices % friends);
+    <span class="c-kw">return</span> <span class="c-num">0</span>;
+}
+</pre></div><div class="codeblock"><div class="bar"><span>▶ Output</span></div><pre class="outp">Each friend gets: 3
+Left over: 2</pre></div><div class="tip"><b class="t">💡 Is it even or odd?</b>A number is <b>even</b> if <code>number % 2</code> is 0, and <b>odd</b> if it is 1. You'll use this a lot!</div><h3>Increment and decrement</h3><div class="codeblock"><div class="bar"><span>example.c</span><button class="copy-btn" data-copy-target="code51" type="button">Copy</button></div><pre id="code51"><span class="c-pp">#include</span> <span class="c-str">&lt;stdio.h&gt;</span>
+
+<span class="c-kw">int</span> <span class="c-fn">main</span>() {
+    <span class="c-kw">int</span> steps = <span class="c-num">10</span>;
+    steps++;     <span class="c-com">// same as steps = steps + 1</span>
+    <span class="c-fn">printf</span>(<span class="c-str">&quot;%d\n&quot;</span>, steps);
+    steps--;     <span class="c-com">// same as steps = steps - 1</span>
+    steps--;
+    <span class="c-fn">printf</span>(<span class="c-str">&quot;%d\n&quot;</span>, steps);
+    <span class="c-kw">return</span> <span class="c-num">0</span>;
+}
+</pre></div><div class="codeblock"><div class="bar"><span>▶ Output</span></div><pre class="outp">11
+9</pre></div><h2 class="section-title" id="assign">3. Assignment operators</h2><p><code>=</code> stores a value in a variable. The <b>compound</b> operators are shortcuts that do math and store the result in one step:</p><div class="table-scroll"><table class="cmd-table"><tr><th>Operator</th><th>Example</th><th>Same as</th></tr><tr><td><code>=</code></td><td><code>x = 5</code></td><td><code>x = 5</code></td></tr><tr><td><code>+=</code></td><td><code>x += 3</code></td><td><code>x = x + 3</code></td></tr><tr><td><code>-=</code></td><td><code>x -= 3</code></td><td><code>x = x - 3</code></td></tr><tr><td><code>*=</code></td><td><code>x *= 3</code></td><td><code>x = x * 3</code></td></tr><tr><td><code>/=</code></td><td><code>x /= 3</code></td><td><code>x = x / 3</code></td></tr><tr><td><code>%=</code></td><td><code>x %= 3</code></td><td><code>x = x % 3</code></td></tr></table></div><div class="codeblock"><div class="bar"><span>example.c</span><button class="copy-btn" data-copy-target="code52" type="button">Copy</button></div><pre id="code52"><span class="c-pp">#include</span> <span class="c-str">&lt;stdio.h&gt;</span>
+
+<span class="c-kw">int</span> <span class="c-fn">main</span>() {
+    <span class="c-kw">int</span> points = <span class="c-num">10</span>;
+    points += <span class="c-num">5</span>;     <span class="c-com">// 15</span>
+    points *= <span class="c-num">2</span>;     <span class="c-com">// 30</span>
+    points -= <span class="c-num">4</span>;     <span class="c-com">// 26</span>
+    points /= <span class="c-num">2</span>;     <span class="c-com">// 13</span>
+    <span class="c-fn">printf</span>(<span class="c-str">&quot;Points: %d\n&quot;</span>, points);
+    <span class="c-kw">return</span> <span class="c-num">0</span>;
+}
+</pre></div><div class="codeblock"><div class="bar"><span>▶ Output</span></div><pre class="outp">Points: 13</pre></div><h2 class="section-title" id="compare">4. Comparison operators</h2><p>Comparison operators ask a <b>yes/no question</b>. In C, the answer is a number: <b>1 means true</b> and <b>0 means false</b>.</p><div class="table-scroll"><table class="cmd-table"><tr><th>Operator</th><th>Meaning</th><th>Example</th><th>Result</th></tr><tr><td><code>==</code></td><td>equal to</td><td><code>5 == 5</code></td><td>1</td></tr><tr><td><code>!=</code></td><td>not equal to</td><td><code>5 != 5</code></td><td>0</td></tr><tr><td><code>&gt;</code></td><td>greater than</td><td><code>7 &gt; 3</code></td><td>1</td></tr><tr><td><code>&lt;</code></td><td>less than</td><td><code>7 &lt; 3</code></td><td>0</td></tr><tr><td><code>&gt;=</code></td><td>greater than or equal to</td><td><code>75 &gt;= 75</code></td><td>1</td></tr><tr><td><code>&lt;=</code></td><td>less than or equal to</td><td><code>80 &lt;= 75</code></td><td>0</td></tr></table></div><div class="codeblock"><div class="bar"><span>example.c</span><button class="copy-btn" data-copy-target="code53" type="button">Copy</button></div><pre id="code53"><span class="c-pp">#include</span> <span class="c-str">&lt;stdio.h&gt;</span>
+
+<span class="c-kw">int</span> <span class="c-fn">main</span>() {
+    <span class="c-kw">int</span> myGrade = <span class="c-num">82</span>;
+    <span class="c-kw">int</span> passing = <span class="c-num">75</span>;
+
+    <span class="c-fn">printf</span>(<span class="c-str">&quot;Did I pass? %d\n&quot;</span>, myGrade &gt;= passing);
+    <span class="c-fn">printf</span>(<span class="c-str">&quot;Perfect score? %d\n&quot;</span>, myGrade == <span class="c-num">100</span>);
+    <span class="c-kw">return</span> <span class="c-num">0</span>;
+}
+</pre></div><div class="codeblock"><div class="bar"><span>▶ Output</span></div><pre class="outp">Did I pass? 1
+Perfect score? 0</pre></div><div class="warn"><b class="t">⚠️ = is not ==</b>One <code>=</code> <b>stores</b> a value (<code>x = 5</code>). Two <code>==</code> <b>compares</b> values (<code>x == 5</code>). Mixing them up is one of the most common mistakes in C!</div><p>You'll use comparisons with <b>if…else</b> to make decisions in a later lesson.</p><h2 class="section-title" id="logic">5. Logical operators</h2><p>Logical operators combine two true/false answers:</p><div class="table-scroll"><table class="cmd-table"><tr><th>Operator</th><th>Name</th><th>True when…</th><th>Example</th><th>Result</th></tr><tr><td><code>&amp;&amp;</code></td><td>AND</td><td><b>both</b> sides are true</td><td><code>5 &gt; 3 &amp;&amp; 2 &gt; 1</code></td><td>1</td></tr><tr><td><code>||</code></td><td>OR</td><td><b>at least one</b> side is true</td><td><code>5 &gt; 3 || 2 &gt; 9</code></td><td>1</td></tr><tr><td><code>!</code></td><td>NOT</td><td>the value is false (it flips the answer)</td><td><code>!(5 &gt; 3)</code></td><td>0</td></tr></table></div><div class="codeblock"><div class="bar"><span>example.c</span><button class="copy-btn" data-copy-target="code54" type="button">Copy</button></div><pre id="code54"><span class="c-pp">#include</span> <span class="c-str">&lt;stdio.h&gt;</span>
+
+<span class="c-kw">int</span> <span class="c-fn">main</span>() {
+    <span class="c-kw">int</span> age = <span class="c-num">13</span>;
+    <span class="c-kw">int</span> hasID = <span class="c-num">1</span>;     <span class="c-com">// 1 = yes, 0 = no</span>
+
+    <span class="c-com">// Can join the club if 12 or older AND has an ID</span>
+    <span class="c-fn">printf</span>(<span class="c-str">&quot;Can join: %d\n&quot;</span>, age &gt;= <span class="c-num">12</span> &amp;&amp; hasID);
+
+    <span class="c-com">// Free entry if younger than 7 OR 60 and older</span>
+    <span class="c-fn">printf</span>(<span class="c-str">&quot;Free entry: %d\n&quot;</span>, age &lt; <span class="c-num">7</span> || age &gt;= <span class="c-num">60</span>);
+    <span class="c-kw">return</span> <span class="c-num">0</span>;
+}
+</pre></div><div class="codeblock"><div class="bar"><span>▶ Output</span></div><pre class="outp">Can join: 1
+Free entry: 0</pre></div><h2 class="section-title" id="order">6. Order of operations</h2><p>Just like in math (MDAS), C does <code>*</code>, <code>/</code> and <code>%</code> <b>before</b> <code>+</code> and <code>-</code>. Use <b>parentheses</b> to choose what goes first:</p><div class="codeblock"><div class="bar"><span>example.c</span><button class="copy-btn" data-copy-target="code55" type="button">Copy</button></div><pre id="code55"><span class="c-pp">#include</span> <span class="c-str">&lt;stdio.h&gt;</span>
+
+<span class="c-kw">int</span> <span class="c-fn">main</span>() {
+    <span class="c-fn">printf</span>(<span class="c-str">&quot;%d\n&quot;</span>, <span class="c-num">2</span> + <span class="c-num">3</span> * <span class="c-num">4</span>);
+    <span class="c-fn">printf</span>(<span class="c-str">&quot;%d\n&quot;</span>, (<span class="c-num">2</span> + <span class="c-num">3</span>) * <span class="c-num">4</span>);
+    <span class="c-fn">printf</span>(<span class="c-str">&quot;%d\n&quot;</span>, <span class="c-num">20</span> - <span class="c-num">10</span> / <span class="c-num">5</span>);
+    <span class="c-fn">printf</span>(<span class="c-str">&quot;%d\n&quot;</span>, (<span class="c-num">20</span> - <span class="c-num">10</span>) / <span class="c-num">5</span>);
+    <span class="c-kw">return</span> <span class="c-num">0</span>;
+}
+</pre></div><div class="codeblock"><div class="bar"><span>▶ Output</span></div><pre class="outp">14
+20
+18
+2</pre></div><div class="widget"><h3>🧪 Operator playground</h3><p style="margin:0 0 10px;font-size:14px">Type two whole numbers (like C <code>int</code> variables) and see the result of each operator:</p><div class="row"><label>a = <input id="opA" type="number" value="17" style="width:110px" aria-label="a"></label><label>b = <input id="opB" type="number" value="5" style="width:110px" aria-label="b"></label></div><div class="calc-grid" id="opGrid" aria-live="polite"></div></div>
+    <h2 class="section-title" id="quiz-sec">7. Quiz 🎯</h2>
+    <div class="quiz" id="quiz"></div>
+    <script type="application/json" id="quizData">[{"q": "What is 17 % 5?", "opts": ["3", "2", "3.4", "85"], "a": 1, "why": "% gives the remainder: 17 ÷ 5 = 3 remainder 2.", "mono": true}, {"q": "What is printed?", "opts": ["13", "12", "11", "1"], "a": 0, "why": "x++ adds 1 to x, so 12 becomes 13.", "code": "int x = 12;\nx++;\nprintf(\"%d\", x);"}, {"q": "What is the value of score?", "opts": ["5", "15", "20", "50"], "a": 2, "why": "score += 10 means score = score + 10, so 10 + 10 = 20.", "code": "int score = 10;\nscore += 10;"}, {"q": "What does 8 > 3 give in C?", "opts": ["true", "yes", "1", "0"], "a": 2, "why": "Comparisons give 1 for true and 0 for false."}, {"q": "Which operator checks if two values are EQUAL?", "opts": ["=", "==", "!=", "=>"], "a": 1, "why": "== compares values. A single = stores a value.", "mono": true}, {"q": "What is printed?", "opts": ["20", "14", "24", "10"], "a": 1, "why": "Multiplication comes first: 3 * 4 = 12, then 2 + 12 = 14.", "code": "printf(\"%d\", 2 + 3 * 4);"}, {"q": "When is a && b true?", "opts": ["When a is true", "When b is true", "When both are true", "When either is true"], "a": 2, "why": "&& (AND) is only true when BOTH sides are true. For \"either\", use || (OR).", "mono": true}]</script>
+
+    <div class="tip"><b class="t">Try It! On a real computer</b>Write a program with two <code>int</code> variables, <code>a = 25</code> and <code>b = 4</code>. Print the result of <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code> and <code>%</code>, then the <b>decimal</b> answer of a ÷ b using a cast (Lesson 9!). Then use <code>%</code> to print whether <code>a</code> is even (1 = yes, 0 = no): <code>printf(&quot;Is a even? %d\n&quot;, a % 2 == 0);</code></div>
+
+    <div class="recap">
+      <h2>✅ What You Learned</h2>
+      <ul><li><b>Arithmetic</b>: <code>+ - * /</code>, <code>%</code> (remainder) and <code>++ --</code>. <code>int / int</code> cuts off decimals.</li><li><b>Assignment</b>: <code>=</code> stores a value. <code>+= -= *= /=</code> are shortcuts.</li><li><b>Comparison</b>: <code>== != &gt; &lt; &gt;= &lt;=</code> give 1 (true) or 0 (false).</li><li><b>Logical</b>: <code>&amp;&amp;</code> (both), <code>||</code> (either), <code>!</code> (not).</li><li><code>* / %</code> come before <code>+ -</code>. Use parentheses to change the order.</li><li>Don't mix up <code>=</code> (store) and <code>==</code> (compare)!</li></ul>
+    </div>
+
+    <div class="lesson-nav-bottom">
+      <a class="nav-btn" href="lesson-10-c-constants.html">← Lesson 10</a>
+      <a class="nav-btn primary" href="index.html">All Lessons</a>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  const THEME_KEY = 'cProgLessonsTheme';
+  const root = document.documentElement;
+  const btn = document.getElementById('themeToggle');
+  function eff() { const x = root.getAttribute('data-theme'); if (x) return x; return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+  function icon() { const d = eff() === 'dark'; btn.textContent = d ? '☀️' : '🌙'; btn.setAttribute('aria-label', d ? 'Switch to light mode' : 'Switch to dark mode'); }
+  let saved = null; try { saved = localStorage.getItem(THEME_KEY); } catch (e) {}
+  if (saved === 'light' || saved === 'dark') root.setAttribute('data-theme', saved);
+  icon();
+  btn.addEventListener('click', () => { const t = eff() === 'dark' ? 'light' : 'dark'; root.setAttribute('data-theme', t); icon(); try { localStorage.setItem(THEME_KEY, t); } catch (e) {} });
+
+  document.querySelectorAll('.copy-btn').forEach(b => b.addEventListener('click', () => {
+    const text = document.getElementById(b.dataset.copyTarget).textContent;
+    const done = () => { const o = b.textContent; b.textContent = 'Copied!'; setTimeout(() => b.textContent = o, 1200); };
+    const fb = () => { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch (e) {} ta.remove(); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fb); else fb();
+  }));
+
+  /* quiz engine */
+  const quiz = document.getElementById('quiz');
+  if (quiz) {
+    const Q = JSON.parse(document.getElementById('quizData').textContent);
+    let qi = 0, score = 0;
+    function render() {
+      quiz.innerHTML = '';
+      if (qi >= Q.length) {
+        const pct = score / Q.length;
+        quiz.innerHTML = `<div class="result"><div class="big">${score} / ${Q.length}</div><p>${pct === 1 ? '🏆 Perfect score!' : pct >= 0.7 ? '🎉 Great job!' : '💪 Good try! Review the lesson and try again.'}</p><button class="next" style="display:inline-block" type="button">Try again</button></div>`;
+        quiz.querySelector('.next').addEventListener('click', () => { qi = 0; score = 0; render(); });
+        return;
+      }
+      const q = Q[qi];
+      const top = document.createElement('div'); top.className = 'q-top';
+      top.innerHTML = `<span>Question ${qi + 1} of ${Q.length}</span><span>Score: ${score}</span>`;
+      const ask = document.createElement('div'); ask.className = 'q-ctx'; ask.style.cssText = 'font-size:15px;color:var(--ink);font-weight:600;margin:0 0 10px'; ask.textContent = q.q;
+      quiz.append(top, ask);
+      if (q.code) { const l = document.createElement('div'); l.className = 'q-line'; l.style.marginBottom = '12px'; l.textContent = q.code; quiz.appendChild(l); }
+      const opts = document.createElement('div'); opts.className = 'opts';
+      const fb = document.createElement('div'); fb.className = 'fb';
+      const next = document.createElement('button'); next.className = 'next'; next.type = 'button';
+      next.textContent = qi === Q.length - 1 ? 'See my score' : 'Next →';
+      next.addEventListener('click', () => { qi++; render(); });
+      q.opts.forEach((label, k) => {
+        const b = document.createElement('button'); b.className = 'opt' + (q.mono ? ' q-opt-code' : ''); b.type = 'button';
+        b.style.whiteSpace = 'pre-wrap'; b.textContent = label;
+        b.addEventListener('click', () => {
+          const ok = k === q.a; if (ok) score++;
+          opts.querySelectorAll('.opt').forEach((o, j) => { o.disabled = true; if (j === q.a) o.classList.add('right'); });
+          if (!ok) b.classList.add('wrong');
+          fb.innerHTML = ok ? '<b>✅ Correct!</b> ' : '<b>❌ Not quite.</b> ';
+          fb.appendChild(document.createTextNode(q.why));
+          next.style.display = 'inline-block';
+          top.lastElementChild.textContent = 'Score: ' + score;
+        });
+        opts.appendChild(b);
+      });
+      quiz.append(opts, fb, next);
+    }
+    render();
+  }
+})();
+</script>
+<script>
+(function(){
+  const a = document.getElementById('opA'), b = document.getElementById('opB'), g = document.getElementById('opGrid');
+  function iv(el){ const v = parseInt(el.value, 10); return isNaN(v) ? 0 : v; }
+  function render(){
+    const x = iv(a), y = iv(b);
+    const cells = [
+      ['a + b', x + y, 'addition'], ['a - b', x - y, 'subtraction'], ['a * b', x * y, 'multiplication'],
+      ['a / b', y === 0 ? '⚠️' : Math.trunc(x / y), y === 0 ? "can't divide by 0" : 'integer division'],
+      ['a % b', y === 0 ? '⚠️' : x % y, y === 0 ? "can't divide by 0" : 'remainder'],
+      ['a > b', x > y ? 1 : 0, x > y ? 'true' : 'false'], ['a == b', x === y ? 1 : 0, x === y ? 'true' : 'false'],
+      ['a != b', x !== y ? 1 : 0, x !== y ? 'true' : 'false'],
+      ['(float) a / b', y === 0 ? '⚠️' : (x / y).toFixed(6), y === 0 ? "can't divide by 0" : 'decimal division']
+    ];
+    g.innerHTML = '';
+    cells.forEach(([e, v, s]) => { const d = document.createElement('div'); d.innerHTML = '<span></span><b></b><small></small>'; d.children[0].textContent = e; d.children[1].textContent = v; d.children[2].textContent = s; g.appendChild(d); });
+  }
+  a.addEventListener('input', render); b.addEventListener('input', render); render();
+})();
+</script>
+</body>
+</html>

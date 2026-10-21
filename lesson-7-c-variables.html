@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 7: C Variables</title>
+<style>
+  :root {
+    --bg1: #eef2ff; --bg2: #f8fafc; --card: #ffffff;
+    --card-border: rgba(15,23,42,0.06); --ink: #1e293b; --muted: #64748b;
+    --accent: #6366f1; --accent-ink: #ffffff;
+    --tip-bg: #fef9c3; --tip-border: #eab308; --tip-ink: #713f12;
+    --warn-bg: #fee2e2; --warn-border: #ef4444; --warn-ink: #7f1d1d;
+    --recap-bg: #ecfdf5; --recap-border: #10b981;
+    --shadow: rgba(15,23,42,0.15); --btn-secondary-bg: #e2e8f0; --btn-secondary-ink: #1e293b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg1: #1e1b4b; --bg2: #0f172a; --card: #1a2036;
+      --card-border: rgba(255,255,255,0.08); --ink: #e7ecff; --muted: #94a3b8;
+      --accent: #818cf8; --accent-ink: #0f172a;
+      --tip-bg: #3f3311; --tip-border: #eab308; --tip-ink: #fef08a;
+      --warn-bg: #3b1212; --warn-border: #f87171; --warn-ink: #fecaca;
+      --recap-bg: #082f22; --recap-border: #34d399;
+      --shadow: rgba(0,0,0,0.5); --btn-secondary-bg: #2a3252; --btn-secondary-ink: #e7ecff;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg1: #1e1b4b; --bg2: #0f172a; --card: #1a2036;
+    --card-border: rgba(255,255,255,0.08); --ink: #e7ecff; --muted: #94a3b8;
+    --accent: #818cf8; --accent-ink: #0f172a;
+    --tip-bg: #3f3311; --tip-border: #eab308; --tip-ink: #fef08a;
+    --warn-bg: #3b1212; --warn-border: #f87171; --warn-ink: #fecaca;
+    --recap-bg: #082f22; --recap-border: #34d399;
+    --shadow: rgba(0,0,0,0.5); --btn-secondary-bg: #2a3252; --btn-secondary-ink: #e7ecff;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { height: 100%; }
+  body { margin: 0; overscroll-behavior: none; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(180deg, var(--bg1), var(--bg2));
+    min-height: 100dvh; display: flex; justify-content: center;
+    padding: 16px; color: var(--ink); transition: background 0.2s, color 0.2s;
+  }
+  .theme-toggle {
+    position: fixed; top: 14px; right: 14px; width: 42px; height: 42px;
+    border-radius: 50%; background: var(--card); border: 1px solid var(--card-border);
+    box-shadow: 0 4px 14px var(--shadow); font-size: 19px; display: flex;
+    align-items: center; justify-content: center; cursor: pointer; z-index: 20; padding: 0;
+  }
+  .theme-toggle:active { transform: scale(0.92); }
+  .wrap { width: 100%; max-width: 760px; padding-top: 8px; }
+  .card { background: var(--card); border: 1px solid var(--card-border); border-radius: 20px; padding: 26px 24px; box-shadow: 0 20px 60px var(--shadow); }
+  .lesson-nav-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 13.5px; padding-right: 48px; }
+  .lesson-nav-top a { color: var(--accent); text-decoration: none; font-weight: 600; }
+  .lesson-badge { background: var(--bg1); color: var(--accent); font-weight: 700; font-size: 11.5px; padding: 4px 10px; border-radius: 999px; }
+  h1 { font-size: clamp(22px, 5vw, 28px); margin: 0 0 4px; }
+  .subtitle { color: var(--muted); font-size: 14.5px; margin-bottom: 18px; line-height: 1.5; }
+  h2.section-title { font-size: 18px; margin: 32px 0 10px; padding-top: 18px; border-top: 1px solid var(--card-border); }
+  h3 { font-size: 15.5px; margin: 20px 0 6px; }
+  p { line-height: 1.65; font-size: 15px; }
+  a { color: var(--accent); }
+  .steps { padding-left: 22px; margin: 10px 0; }
+  .steps li { line-height: 1.65; font-size: 15px; margin-bottom: 8px; }
+  .tip, .warn { border-left: 4px solid; border-radius: 8px; padding: 12px 14px; font-size: 14px; line-height: 1.55; margin: 16px 0; }
+  .tip { background: var(--tip-bg); border-color: var(--tip-border); color: var(--tip-ink); }
+  .warn { background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn-ink); }
+  .tip b.t, .warn b.t { display: block; margin-bottom: 3px; }
+  .recap { background: var(--recap-bg); border: 1px solid var(--recap-border); border-radius: 14px; padding: 16px 18px; margin-top: 30px; }
+  .recap h2 { margin: 0 0 10px; font-size: 16px; }
+  .recap ul { margin: 0; padding-left: 20px; font-size: 14.5px; line-height: 1.75; }
+  .lesson-nav-bottom { display: flex; gap: 10px; margin-top: 24px; }
+  .nav-btn { flex: 1; text-align: center; padding: 13px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 14.5px; background: var(--btn-secondary-bg); color: var(--btn-secondary-ink); }
+  .nav-btn.primary { background: var(--accent); color: var(--accent-ink); }
+  .toc { background: var(--bg1); border-radius: 12px; padding: 12px 16px; font-size: 14px; }
+  .toc ol { margin: 6px 0 0; padding-left: 20px; line-height: 1.8; }
+  .toc a { text-decoration: none; font-weight: 600; }
+  code, .kbd { font-family: Consolas, "Cascadia Mono", Menlo, monospace; }
+  code { background: var(--bg1); padding: 1px 6px; border-radius: 5px; font-size: 13.5px; word-break: break-word; }
+  .kbd { display: inline-block; padding: 1px 7px; border-radius: 5px; border: 1px solid var(--card-border); border-bottom-width: 3px; background: var(--bg1); font-weight: 700; font-size: 12.5px; color: var(--ink); white-space: nowrap; }
+
+  /* flow diagram */
+  .flow { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 16px 0; }
+  .flow .box { background: var(--bg1); border-radius: 12px; padding: 12px 14px; text-align: center; min-width: 120px; font-size: 13px; color: var(--muted); }
+  .flow .box b { display: block; color: var(--ink); font-size: 15px; font-family: Consolas, Menlo, monospace; margin-bottom: 2px; }
+  .flow .arrow { color: var(--accent); font-weight: 800; font-size: 20px; }
+
+  /* code + terminal blocks */
+  .codeblock { position: relative; margin: 12px 0; border-radius: 10px; overflow: hidden; box-shadow: 0 8px 22px var(--shadow); }
+  .codeblock .bar { background: #1f1f1f; color: #aaa; font: 12px "Segoe UI", sans-serif; padding: 7px 12px; display: flex; justify-content: space-between; align-items: center; }
+  .codeblock pre { margin: 0; background: #0c0c0c; color: #d4d4d4; padding: 12px 14px; font: 13.5px/1.6 Consolas, "Cascadia Mono", Menlo, monospace; overflow-x: auto; }
+  .copy-btn { background: #333; color: #ddd; border: 0; border-radius: 6px; font-size: 11.5px; padding: 3px 9px; cursor: pointer; }
+  .copy-btn:active { transform: scale(0.95); }
+  .c-kw { color: #c586c0; } .c-str { color: #ce9178; } .c-pp { color: #9cdcfe; } .c-com { color: #6a9955; } .c-fn { color: #dcdcaa; }
+  .t-out { color: #7ee787; } .t-err { color: #ff7b72; }
+
+  /* windows dialog mockups */
+  .dlg { border-radius: 8px; overflow: hidden; border: 1px solid rgba(0,0,0,0.15); box-shadow: 0 10px 30px var(--shadow); margin: 14px 0; background: #fff; color: #222; max-width: 440px; font: 12.5px "Segoe UI", sans-serif; }
+  .dlg-title { background: #f3f3f3; padding: 8px 12px; border-bottom: 1px solid #ddd; font-weight: 600; display: flex; justify-content: space-between; }
+  .dlg-body { padding: 12px; }
+  .dlg-label { font-weight: 600; margin: 6px 0 4px; }
+  .dlg-list { border: 1px solid #bbb; background: #fff; }
+  .dlg-list div { padding: 4px 8px; display: flex; gap: 14px; font-family: Consolas, monospace; font-size: 12px; }
+  .dlg-list div span:first-child { min-width: 80px; font-family: "Segoe UI", sans-serif; }
+  .dlg-list div.hl { background: #cce4f7; outline: 1px solid #0078d4; }
+  .dlg-list div.new { background: #e8f5e9; font-weight: 700; }
+  .dlg-btns { display: flex; gap: 6px; justify-content: flex-end; margin-top: 10px; flex-wrap: wrap; }
+  .dlg-btn { padding: 4px 14px; border: 1px solid #adadad; background: #e1e1e1; border-radius: 3px; }
+  .dlg-btn.hl { border-color: #0078d4; background: #cce4f7; box-shadow: 0 0 0 2px rgba(0,120,212,0.3); }
+  .dlg-side { display: flex; gap: 10px; }
+  .dlg-side .dlg-list { flex: 1; }
+  .dlg-side .col { display: flex; flex-direction: column; gap: 5px; }
+  .caption { font-size: 12.5px; color: var(--muted); text-align: center; margin-top: -4px; margin-bottom: 14px; }
+
+  .folder-tree { font: 13.5px/1.7 Consolas, Menlo, monospace; background: var(--bg1); border-radius: 10px; padding: 12px 16px; white-space: pre; overflow-x: auto; }
+  .folder-tree b { color: var(--accent); }
+
+  .editor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin: 12px 0; }
+  .editor-grid > div { background: var(--bg1); border-radius: 12px; padding: 12px 14px; font-size: 13.5px; line-height: 1.5; }
+  .editor-grid b { display: block; font-size: 14.5px; margin-bottom: 3px; }
+  .checklist { list-style: none; padding: 0; margin: 10px 0; }
+  .checklist li { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border-radius: 10px; font-size: 14.5px; line-height: 1.5; cursor: pointer; }
+  .checklist li:hover { background: var(--bg1); }
+  .checklist input { margin-top: 4px; width: 17px; height: 17px; accent-color: var(--accent); flex-shrink: 0; }
+
+  @media (max-width: 420px) { .card { padding: 18px 14px; } .dlg-side { flex-direction: column; } .dlg-side .col { flex-direction: row; flex-wrap: wrap; } }
+  .cmd-table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 12px 0; }
+  .cmd-table th, .cmd-table td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--card-border); vertical-align: top; line-height: 1.5; }
+  .cmd-table th { font-size: 12.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .cmd-table td:first-child { white-space: nowrap; }
+  .cmd-table code { font-weight: 700; }
+  .table-scroll { overflow-x: auto; }
+  .quiz { background: var(--bg1); border-radius: 14px; padding: 16px; margin: 14px 0; }
+  .quiz .q-top { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); font-weight: 600; margin-bottom: 10px; }
+  .quiz .q-line { background: #0c0c0c; color: #e5e5e5; font: 15px Consolas, Menlo, monospace; padding: 14px; border-radius: 10px; white-space: pre-wrap; word-break: break-word; }
+  .quiz .q-ctx { font-size: 13px; color: var(--muted); margin: 6px 0 12px; min-height: 1em; }
+  .quiz .opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+  .quiz .opt { border: 2px solid var(--card-border); background: var(--card); color: var(--ink); border-radius: 10px; padding: 10px; font: 600 13.5px inherit; font-family: inherit; cursor: pointer; text-align: left; border-left-width: 6px; }
+  .quiz .opt:disabled { cursor: default; }
+  .quiz .opt.right { background: #dcfce7; color: #14532d; border-color: #16a34a; }
+  .quiz .opt.wrong { background: #fee2e2; color: #7f1d1d; border-color: #dc2626; }
+  .quiz .fb { margin-top: 12px; font-size: 14px; line-height: 1.55; min-height: 1.2em; }
+  .quiz .next { margin-top: 10px; background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 10px; padding: 10px 18px; font: 700 14px inherit; font-family: inherit; cursor: pointer; display: none; }
+  .quiz .result { text-align: center; padding: 10px 0; }
+  .quiz .result .big { font-size: 34px; font-weight: 800; color: var(--accent); }
+
+  .c-num { color: #b5cea8; }
+  .chip { border: 2px solid var(--accent); background: transparent; color: var(--ink); border-radius: 999px; padding: 5px 11px; font: 700 12.5px Consolas, Menlo, monospace; cursor: pointer; }
+  .chip:hover { background: var(--card); }
+  .outp { color: #7ee787 !important; }
+  .codeblock + .codeblock { margin-top: -6px; border-top-left-radius: 0; border-top-right-radius: 0; }
+  .codeblock.err pre { color: #d4d4d4; }
+  .q-opt-code { font-family: Consolas, Menlo, monospace; }
+  .widget { background: var(--bg1); border-radius: 14px; padding: 16px; margin: 14px 0; }
+  .widget h3 { margin: 0 0 8px; }
+  .widget input { font: 15px Consolas, Menlo, monospace; padding: 9px 11px; border-radius: 9px; border: 2px solid var(--card-border); background: var(--card); color: var(--ink); width: 100%; max-width: 260px; }
+  .widget input:focus { outline: none; border-color: var(--accent); }
+  .widget .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .widget .verdict { margin-top: 10px; font-weight: 700; font-size: 14.5px; min-height: 1.4em; }
+  .widget .verdict.ok { color: #16a34a; } .widget .verdict.bad { color: #dc2626; }
+  :root[data-theme="dark"] .widget .verdict.ok { color: #4ade80; } :root[data-theme="dark"] .widget .verdict.bad { color: #f87171; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .widget .verdict.ok { color: #4ade80; } :root:not([data-theme="light"]) .widget .verdict.bad { color: #f87171; } }
+  .box-vis { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin: 16px 0; }
+  .box-vis .bx { width: 130px; text-align: center; }
+  .box-vis .lid { font: 700 12px Consolas, Menlo, monospace; color: var(--accent); margin-bottom: 4px; }
+  .box-vis .body { border: 3px solid var(--accent); border-top-width: 8px; border-radius: 6px 6px 12px 12px; padding: 16px 6px; font: 700 20px Consolas, Menlo, monospace; background: var(--card); }
+  .box-vis .nm { margin-top: 6px; font-weight: 700; font-size: 14px; }
+  .calc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-top: 12px; }
+  .calc-grid div { background: var(--card); border-radius: 10px; padding: 10px; text-align: center; font: 14px Consolas, Menlo, monospace; }
+  .calc-grid b { display: block; font-size: 18px; color: var(--accent); margin-top: 3px; }
+  .calc-grid small { display: block; font: 11.5px -apple-system, "Segoe UI", sans-serif; color: var(--muted); margin-top: 3px; }
+
+</style>
+</head>
+<body>
+<button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark mode">🌙</button>
+<div class="wrap">
+  <div class="card">
+    <div class="lesson-nav-top">
+      <a href="index.html">← All Lessons</a>
+      <span class="lesson-badge">Lesson 7</span>
+    </div>
+
+    <h1>📦 C Variables</h1>
+    <div class="subtitle">A <b>variable</b> is like a labeled box that stores a value, such as a score, a price, or a letter. Your program can use or change what's inside later.</div>
+
+    <div class="toc"><b>In this lesson</b><ol><li><a href="#what">What is a variable?</a></li><li><a href="#declare">Creating (declaring) a variable</a></li><li><a href="#print">Printing variables</a></li><li><a href="#change">Changing a variable's value</a></li><li><a href="#many">Declaring many variables at once</a></li><li><a href="#names">Rules for naming variables</a></li><li><a href="#quiz-sec">Quiz</a></li></ol></div>
+
+<h2 class="section-title" id="what">1. What is a variable?</h2><div class="box-vis"><div class="bx"><div class="lid">int</div><div class="body">13</div><div class="nm">age</div></div><div class="bx"><div class="lid">float</div><div class="body">89.5</div><div class="nm">average</div></div><div class="bx"><div class="lid">char</div><div class="body">'B'</div><div class="nm">section</div></div></div><p>Every variable has three things: a <b>type</b> (what kind of data it can hold), a <b>name</b>, and a <b>value</b>. The three basic types are:</p><div class="table-scroll"><table class="cmd-table"><tr><th>Type</th><th>Stores</th><th>Examples</th></tr><tr><td><code>int</code></td><td>Whole numbers (no decimal point)</td><td><code>13</code>, <code>-5</code>, <code>2026</code></td></tr><tr><td><code>float</code></td><td>Numbers with decimals</td><td><code>89.5</code>, <code>-3.75</code>, <code>19.99</code></td></tr><tr><td><code>char</code></td><td>One single character, in <b>single quotes</b></td><td><code>&#x27;A&#x27;</code>, <code>&#x27;b&#x27;</code>, <code>&#x27;7&#x27;</code></td></tr></table></div><h2 class="section-title" id="declare">2. Creating (declaring) a variable</h2><p>To create a variable, write its <b>type</b>, its <b>name</b>, and (optionally) <code>=</code> and a starting <b>value</b>:</p><div class="codeblock"><div class="bar"><span>syntax</span><button class="copy-btn" data-copy-target="code17" type="button">Copy</button></div><pre id="code17">type variableName = value;</pre></div><div class="codeblock"><div class="bar"><span>snippet</span><button class="copy-btn" data-copy-target="code18" type="button">Copy</button></div><pre id="code18"><span class="c-kw">int</span> age = <span class="c-num">13</span>;
+<span class="c-kw">float</span> average = <span class="c-num">89.5</span>;
+<span class="c-kw">char</span> section = <span class="c-str">&#x27;B&#x27;</span>;</pre></div><p>The <code>=</code> sign here means <b>"store this value in the box"</b>. It's called the <b>assignment operator</b>. It does not mean "equals" like in math.</p><p>You can also create the box first and put a value in later:</p><div class="codeblock"><div class="bar"><span>snippet</span><button class="copy-btn" data-copy-target="code19" type="button">Copy</button></div><pre id="code19"><span class="c-kw">int</span> score;      <span class="c-com">// declare: make an empty box named score</span>
+score = <span class="c-num">95</span>;     <span class="c-com">// assign: put 95 inside</span></pre></div><h2 class="section-title" id="print">3. Printing variables</h2><p>You might expect <code>printf(age);</code> to print a variable, but in C it doesn't work:</p><div class="codeblock"><div class="bar"><span>example.c</span><button class="copy-btn" data-copy-target="code20" type="button">Copy</button></div><pre id="code20"><span class="c-pp">#include</span> <span class="c-str">&lt;stdio.h&gt;</span>
+
+<span class="c-kw">int</span> <span class="c-fn">main</span>() {
+    <span class="c-kw">int</span> age = <span class="c-num">13</span>;
+    <span class="c-fn">printf</span>(age);
+    <span class="c-kw">return</span> <span class="c-num">0</span>;
+}
+</pre></div><div class="codeblock err"><div class="bar"><span>❌ Compiler says</span></div><pre>C:\cprog&gt; gcc example.c -o example
+<span class="t-err">example.c:5:12: error: passing argument 1 of &#x27;printf&#x27; makes pointer from integer without a cast [-Werror=int-conversion]
+    5 |     printf(age);
+      |            ^~~</span></pre></div><p>To print a variable, put a <b>format specifier</b> in the text where the value should appear, then list the variable after a comma:</p><div class="table-scroll"><table class="cmd-table"><tr><th>Specifier</th><th>Used for</th></tr><tr><td><code>%d</code></td><td><code>int</code></td></tr><tr><td><code>%f</code></td><td><code>float</code></td></tr><tr><td><code>%c</code></td><td><code>char</code></td></tr></table></div><div class="codeblock"><div class="bar"><span>example.c</span><button class="copy-btn" data-copy-target="code21" type="button">Copy</button></div><pre id="code21"><span class="c-pp">#include</span> <span class="c-str">&lt;stdio.h&gt;</span>
+
+<span class="c-kw">int</span> <span class="c-fn">main</span>() {
+    <span class="c-kw">int</span> age = <span class="c-num">13</span>;
+    <span class="c-kw">float</span> average = <span class="c-num">89.5</span>;
+    <span class="c-kw">char</span> section = <span class="c-str">&#x27;B&#x27;</span>;
+
+    <span class="c-fn">printf</span>(<span class="c-str">&quot;Age: %d\n&quot;</span>, age);
+    <span class="c-fn">printf</span>(<span class="c-str">&quot;Average: %f\n&quot;</span>, average);
+    <span class="c-fn">printf</span>(<span class="c-str">&quot;Section: %c\n&quot;</span>, section);
+    <span class="c-kw">return</span> <span class="c-num">0</span>;
+}
+</pre></div><div class="codeblock"><div class="bar"><span>▶ Output</span></div><pre class="outp">Age: 13
+Average: 89.500000
+Section: B</pre></div><p>You can mix text and several variables in one <code>printf()</code>. They fill in the specifiers <b>in order</b>:</p><div class="codeblock"><div class="bar"><span>example.c</span><button class="copy-btn" data-copy-target="code22" type="button">Copy</button></div><pre id="code22"><span class="c-pp">#include</span> <span class="c-str">&lt;stdio.h&gt;</span>
+
+<span class="c-kw">int</span> <span class="c-fn">main</span>() {
+    <span class="c-kw">int</span> age = <span class="c-num">13</span>;
+    <span class="c-kw">char</span> section = <span class="c-str">&#x27;B&#x27;</span>;
+    <span class="c-fn">printf</span>(<span class="c-str">&quot;I am %d years old and I am in section %c.\n&quot;</span>, age, section);
+    <span class="c-kw">return</span> <span class="c-num">0</span>;
+}
+</pre></div><div class="codeblock"><div class="bar"><span>▶ Output</span></div><pre class="outp">I am 13 years old and I am in section B.</pre></div><div class="tip"><b class="t">💡 Too many zeros?</b><code>%f</code> prints 6 decimal places (<code>89.500000</code>). Use <code>%.1f</code> for 1 decimal place or <code>%.2f</code> for 2. You'll practice this in Lesson 8.</div><h2 class="section-title" id="change">4. Changing a variable's value</h2><p>A variable can <b>vary</b> (that's where the name comes from!). Assigning a new value <b>replaces</b> the old one:</p><div class="codeblock"><div class="bar"><span>example.c</span><button class="copy-btn" data-copy-target="code23" type="button">Copy</button></div><pre id="code23"><span class="c-pp">#include</span> <span class="c-str">&lt;stdio.h&gt;</span>
+
+<span class="c-kw">int</span> <span class="c-fn">main</span>() {
+    <span class="c-kw">int</span> score = <span class="c-num">70</span>;
+    <span class="c-fn">printf</span>(<span class="c-str">&quot;Before: %d\n&quot;</span>, score);
+
+    score = <span class="c-num">95</span>;      <span class="c-com">// the old value 70 is replaced</span>
+    <span class="c-fn">printf</span>(<span class="c-str">&quot;After: %d\n&quot;</span>, score);
+    <span class="c-kw">return</span> <span class="c-num">0</span>;
+}
+</pre></div><div class="codeblock"><div class="bar"><span>▶ Output</span></div><pre class="outp">Before: 70
+After: 95</pre></div><p>You can copy one variable's value into another, or use variables to calculate:</p><div class="codeblock"><div class="bar"><span>example.c</span><button class="copy-btn" data-copy-target="code24" type="button">Copy</button></div><pre id="code24"><span class="c-pp">#include</span> <span class="c-str">&lt;stdio.h&gt;</span>
+
+<span class="c-kw">int</span> <span class="c-fn">main</span>() {
+    <span class="c-kw">int</span> math = <span class="c-num">92</span>;
+    <span class="c-kw">int</span> science = <span class="c-num">88</span>;
+    <span class="c-kw">int</span> total = math + science;
+    <span class="c-kw">int</span> copy = total;
+
+    <span class="c-fn">printf</span>(<span class="c-str">&quot;Total: %d\n&quot;</span>, total);
+    <span class="c-fn">printf</span>(<span class="c-str">&quot;Copy:  %d\n&quot;</span>, copy);
+    <span class="c-kw">return</span> <span class="c-num">0</span>;
+}
+</pre></div><div class="codeblock"><div class="bar"><span>▶ Output</span></div><pre class="outp">Total: 180
+Copy:  180</pre></div><h2 class="section-title" id="many">5. Declaring many variables at once</h2><p>Several variables of the <b>same type</b> can be declared on one line, separated by commas:</p><div class="codeblock"><div class="bar"><span>example.c</span><button class="copy-btn" data-copy-target="code25" type="button">Copy</button></div><pre id="code25"><span class="c-pp">#include</span> <span class="c-str">&lt;stdio.h&gt;</span>
+
+<span class="c-kw">int</span> <span class="c-fn">main</span>() {
+    <span class="c-kw">int</span> x = <span class="c-num">5</span>, y = <span class="c-num">6</span>, z = <span class="c-num">50</span>;
+    <span class="c-fn">printf</span>(<span class="c-str">&quot;%d\n&quot;</span>, x + y + z);
+    <span class="c-kw">return</span> <span class="c-num">0</span>;
+}
+</pre></div><div class="codeblock"><div class="bar"><span>▶ Output</span></div><pre class="outp">61</pre></div><p>You can also give several variables the <b>same value</b>:</p><div class="codeblock"><div class="bar"><span>example.c</span><button class="copy-btn" data-copy-target="code26" type="button">Copy</button></div><pre id="code26"><span class="c-pp">#include</span> <span class="c-str">&lt;stdio.h&gt;</span>
+
+<span class="c-kw">int</span> <span class="c-fn">main</span>() {
+    <span class="c-kw">int</span> a, b, c;
+    a = b = c = <span class="c-num">10</span>;
+    <span class="c-fn">printf</span>(<span class="c-str">&quot;%d %d %d\n&quot;</span>, a, b, c);
+    <span class="c-kw">return</span> <span class="c-num">0</span>;
+}
+</pre></div><div class="codeblock"><div class="bar"><span>▶ Output</span></div><pre class="outp">10 10 10</pre></div><h2 class="section-title" id="names">6. Rules for naming variables</h2><p>Variable names are called <b>identifiers</b>. They must follow these rules:</p><ul class="steps"><li>Use only <b>letters</b>, <b>numbers</b>, and the <b>underscore</b> <code>_</code>.</li><li>A name <b>can't start with a number</b>.</li><li><b>No spaces</b> or symbols like <code>-</code>, <code>!</code> or <code>$</code>.</li><li>Names are <b>case-sensitive</b>: <code>score</code> and <code>Score</code> are two different variables.</li><li>You can't use <b>keywords</b> (reserved words like <code>int</code>, <code>return</code>, <code>float</code>).</li></ul><div class="tip"><b class="t">💡 Choose meaningful names</b><code>studentAge</code> is much clearer than <code>x</code> or <code>sa</code>. Two common styles: <b>camelCase</b> (<code>studentAge</code>) and <b>snake_case</b> (<code>student_age</code>).</div><div class="widget"><h3>🔍 Name checker</h3><p style="margin:0 0 10px;font-size:14px">Type a variable name to see if C allows it, or tap an example:</p><input id="nameIn" type="text" placeholder="e.g. myScore" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Variable name"><div class="chips" style="margin-top:10px"><button class="chip" type="button" data-try="myScore" style="border-color:var(--accent)">myScore</button><button class="chip" type="button" data-try="2ndPlace" style="border-color:var(--accent)">2ndPlace</button><button class="chip" type="button" data-try="first name" style="border-color:var(--accent)">first name</button><button class="chip" type="button" data-try="total_pts" style="border-color:var(--accent)">total_pts</button><button class="chip" type="button" data-try="int" style="border-color:var(--accent)">int</button><button class="chip" type="button" data-try="price$" style="border-color:var(--accent)">price$</button><button class="chip" type="button" data-try="_count" style="border-color:var(--accent)">_count</button><button class="chip" type="button" data-try="Grade8" style="border-color:var(--accent)">Grade8</button></div><div class="verdict" id="nameOut" aria-live="polite"></div></div>
+    <h2 class="section-title" id="quiz-sec">7. Quiz 🎯</h2>
+    <div class="quiz" id="quiz"></div>
+    <script type="application/json" id="quizData">[{"q": "Which type stores a whole number like 25?", "opts": ["char", "float", "int", "word"], "a": 2, "why": "int stores whole numbers (integers) without decimals.", "mono": true}, {"q": "Which is the correct way to store the letter A?", "opts": ["char grade = \"A\";", "char grade = 'A';", "char grade = A;", "int grade = A;"], "a": 1, "why": "A single character goes in single quotes. Double quotes are for strings (text).", "mono": true}, {"q": "What is printed?", "opts": ["10", "25", "10\n25", "35"], "a": 1, "why": "The second assignment replaces 10 with 25, so 25 is printed.", "code": "int points = 10;\npoints = 25;\nprintf(\"%d\", points);"}, {"q": "Which is a VALID variable name?", "opts": ["2score", "my score", "my_score", "return"], "a": 2, "why": "my_score uses only letters and an underscore. 2score starts with a number, \"my score\" has a space, and return is a keyword.", "mono": true}, {"q": "Which format specifier prints a float?", "opts": ["%d", "%c", "%f", "%s"], "a": 2, "why": "%f is for float, %d is for int, and %c is for char.", "mono": true}, {"q": "What is printed?", "opts": ["8", "5 + 3", "a + b", "53"], "a": 0, "why": "printf calculates a + b = 8 and puts it where %d is.", "code": "int a = 5, b = 3;\nprintf(\"%d\", a + b);"}]</script>
+
+    <div class="tip"><b class="t">Try It! On a real computer</b>Write a program that creates variables for your <b>age</b> (<code>int</code>), your <b>height in meters</b> (<code>float</code>) and the <b>first letter of your name</b> (<code>char</code>). Print them in one sentence like: <i>"I am 13 years old, 1.52 meters tall, and my name starts with J."</i> Then change your age to next year's and print it again.</div>
+
+    <div class="recap">
+      <h2>✅ What You Learned</h2>
+      <ul><li>A <b>variable</b> is a named box that stores a value.</li><li>Basic types: <code>int</code> (whole numbers), <code>float</code> (decimals), <code>char</code> (one character in single quotes).</li><li>Declare with <code>type name = value;</code></li><li>Print variables with format specifiers: <code>%d</code>, <code>%f</code>, <code>%c</code>.</li><li>A new assignment <b>replaces</b> the old value.</li><li>Names: letters, numbers and <code>_</code> only. They can't start with a number, can't contain spaces, and can't be keywords.</li></ul>
+    </div>
+
+    <div class="lesson-nav-bottom">
+      <a class="nav-btn" href="lesson-6-c-comments.html">← Lesson 6</a>
+      <a class="nav-btn primary" href="lesson-8-c-data-types.html">Lesson 8 →</a>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  const THEME_KEY = 'cProgLessonsTheme';
+  const root = document.documentElement;
+  const btn = document.getElementById('themeToggle');
+  function eff() { const x = root.getAttribute('data-theme'); if (x) return x; return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+  function icon() { const d = eff() === 'dark'; btn.textContent = d ? '☀️' : '🌙'; btn.setAttribute('aria-label', d ? 'Switch to light mode' : 'Switch to dark mode'); }
+  let saved = null; try { saved = localStorage.getItem(THEME_KEY); } catch (e) {}
+  if (saved === 'light' || saved === 'dark') root.setAttribute('data-theme', saved);
+  icon();
+  btn.addEventListener('click', () => { const t = eff() === 'dark' ? 'light' : 'dark'; root.setAttribute('data-theme', t); icon(); try { localStorage.setItem(THEME_KEY, t); } catch (e) {} });
+
+  document.querySelectorAll('.copy-btn').forEach(b => b.addEventListener('click', () => {
+    const text = document.getElementById(b.dataset.copyTarget).textContent;
+    const done = () => { const o = b.textContent; b.textContent = 'Copied!'; setTimeout(() => b.textContent = o, 1200); };
+    const fb = () => { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch (e) {} ta.remove(); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fb); else fb();
+  }));
+
+  /* quiz engine */
+  const quiz = document.getElementById('quiz');
+  if (quiz) {
+    const Q = JSON.parse(document.getElementById('quizData').textContent);
+    let qi = 0, score = 0;
+    function render() {
+      quiz.innerHTML = '';
+      if (qi >= Q.length) {
+        const pct = score / Q.length;
+        quiz.innerHTML = `<div class="result"><div class="big">${score} / ${Q.length}</div><p>${pct === 1 ? '🏆 Perfect score!' : pct >= 0.7 ? '🎉 Great job!' : '💪 Good try! Review the lesson and try again.'}</p><button class="next" style="display:inline-block" type="button">Try again</button></div>`;
+        quiz.querySelector('.next').addEventListener('click', () => { qi = 0; score = 0; render(); });
+        return;
+      }
+      const q = Q[qi];
+      const top = document.createElement('div'); top.className = 'q-top';
+      top.innerHTML = `<span>Question ${qi + 1} of ${Q.length}</span><span>Score: ${score}</span>`;
+      const ask = document.createElement('div'); ask.className = 'q-ctx'; ask.style.cssText = 'font-size:15px;color:var(--ink);font-weight:600;margin:0 0 10px'; ask.textContent = q.q;
+      quiz.append(top, ask);
+      if (q.code) { const l = document.createElement('div'); l.className = 'q-line'; l.style.marginBottom = '12px'; l.textContent = q.code; quiz.appendChild(l); }
+      const opts = document.createElement('div'); opts.className = 'opts';
+      const fb = document.createElement('div'); fb.className = 'fb';
+      const next = document.createElement('button'); next.className = 'next'; next.type = 'button';
+      next.textContent = qi === Q.length - 1 ? 'See my score' : 'Next →';
+      next.addEventListener('click', () => { qi++; render(); });
+      q.opts.forEach((label, k) => {
+        const b = document.createElement('button'); b.className = 'opt' + (q.mono ? ' q-opt-code' : ''); b.type = 'button';
+        b.style.whiteSpace = 'pre-wrap'; b.textContent = label;
+        b.addEventListener('click', () => {
+          const ok = k === q.a; if (ok) score++;
+          opts.querySelectorAll('.opt').forEach((o, j) => { o.disabled = true; if (j === q.a) o.classList.add('right'); });
+          if (!ok) b.classList.add('wrong');
+          fb.innerHTML = ok ? '<b>✅ Correct!</b> ' : '<b>❌ Not quite.</b> ';
+          fb.appendChild(document.createTextNode(q.why));
+          next.style.display = 'inline-block';
+          top.lastElementChild.textContent = 'Score: ' + score;
+        });
+        opts.appendChild(b);
+      });
+      quiz.append(opts, fb, next);
+    }
+    render();
+  }
+})();
+</script>
+<script>
+(function(){
+  const KW = ['auto','break','case','char','const','continue','default','do','double','else','enum','extern','float','for','goto','if','inline','int','long','register','restrict','return','short','signed','sizeof','static','struct','switch','typedef','union','unsigned','void','volatile','while','bool','true','false'];
+  const inp = document.getElementById('nameIn'), out = document.getElementById('nameOut');
+  function check(){
+    const v = inp.value;
+    let ok = false, msg = '';
+    if (!v) msg = '';
+    else if (/\s/.test(v)) msg = '❌ Names can\'t have spaces. Try camelCase (myAge) or an underscore (my_age).';
+    else if (/^[0-9]/.test(v)) msg = '❌ Names can\'t start with a number.';
+    else if (/[^A-Za-z0-9_]/.test(v)) msg = '❌ Only letters, numbers and underscore _ are allowed. No - . ! @ # $ etc.';
+    else if (KW.includes(v)) msg = '❌ "' + v + '" is a C keyword (reserved word), so it can\'t be a name.';
+    else { ok = true; msg = '✅ Valid name!' + (v.length === 1 ? ' (Allowed, but a longer name like "score" says more.)' : '') + (/^[A-Z]/.test(v) && v !== v.toUpperCase() ? ' Tip: variable names usually start with a lowercase letter.' : ''); }
+    out.textContent = msg; out.className = 'verdict ' + (v ? (ok ? 'ok' : 'bad') : '');
+  }
+  inp.addEventListener('input', check);
+  document.querySelectorAll('[data-try]').forEach(b => b.addEventListener('click', () => { inp.value = b.dataset.try; check(); }));
+})();
+</script>
+</body>
+</html>
